@@ -2,6 +2,7 @@
 'use strict';
 
 let assert = require('chai').assert;
+let File = require('../lib/file');
 let Tree = require('../lib/tree');
 
 describe('Tree()', function () {
@@ -14,77 +15,68 @@ describe('Tree()', function () {
     assert.equal(tree.size(), 0);
   });
 
-  describe('#addNode(key, [data])', function () {
-    it('should add a new vertex', function () {
-      let tree = new Tree();
-      tree.addNode('a');
-
-      assert.isTrue(tree.hasNode('a'));
-    });
-
-    it('should not create duplicates if the node already exists', function () {
-      let tree = new Tree();
-      tree.addNode('a');
-      tree.addNode('a');
-
-      assert.isTrue(tree.hasNode('a'));
-    });
-
-    context('with data', function () {
-      it('should store than value with the node', function () {
-        let tree = new Tree();
-        tree.addNode('a', 'A');
-        assert.strictEqual(tree.getNode('a'), 'A');
-      });
-    });
-  });
-
-  describe('#hasNode(key)', function () {
+  describe('#hasFile(location)', function () {
     let tree = new Tree();
-    tree.addNode('a');
+    tree.addFile('a');
 
     it('should return false for a missing node', function () {
-      assert.isFalse(tree.hasNode('z'));
+      assert.isFalse(tree.hasFile('z'));
     });
 
     it('should return true for an existing node', function () {
-      assert.isTrue(tree.hasNode('a'));
+      assert.isTrue(tree.hasFile('a'));
     });
   });
 
-  describe('#getNode(key)', function () {
-    let tree = new Tree();
-    tree.addNode('a', 'A');
-    tree.addNode('b');
-
-    it('should return the value stored with the specified node', function () {
-      assert.strictEqual(tree.getNode('a'), 'A');
-    });
-
-    it('should return undefined when the node does not have a value', function () {
-      assert.isUndefined(tree.getNode('b'));
-    });
-
-    it('should return undefined when the node does not exist', function () {
-      assert.isUndefined(tree.getNode('z'));
-    });
-  });
-
-  describe('#removeNode(key)', function () {
-    it('should remove the node from the graph', function () {
+  describe('#addFile(location)', function () {
+    it('should add a new vertex', function () {
       let tree = new Tree();
-      tree.addNode('a');
-      tree.removeNode('a');
+      tree.addFile('a');
 
-      assert.isFalse(tree.hasNode('a'));
+      assert.isTrue(tree.hasFile('a'));
+    });
+
+    it('should not overwrite the file object', function () {
+      let tree = new Tree();
+      let file1 = tree.addFile('a');
+      let file2 = tree.addFile('a');
+
+      assert.strictEqual(file1, file2);
+    });
+  });
+
+  describe('#getFile(location)', function () {
+    let tree = new Tree();
+    tree.addFile('a');
+
+    it('should return a file instance', function () {
+      let file = tree.getFile('a');
+      assert.instanceOf(file, File);
+      assert.strictEqual(file.path, 'a');
+    });
+
+    it('should throw when the file does not exist', function () {
+      assert.isUndefined(tree.getFile('z'));
+    });
+  });
+
+  describe('#removeFile(location)', function () {
+    it('should remove the file from the tree', function () {
+      let tree = new Tree();
+      tree.addFile('a');
+      tree.removeFile('a');
+
+      assert.isFalse(tree.hasFile('a'));
     });
 
     it('should fail if there are still dependencies defined', function () {
       let tree = new Tree();
+      tree.addFile('a');
+      tree.addFile('b');
       tree.addDependency('a', 'b');
 
       assert.throws(function () {
-        tree.removeNode('a');
+        tree.removeFile('a');
       });
     });
   });
@@ -99,10 +91,10 @@ describe('Tree()', function () {
       // a -> b -> c
       //   -> d
       let tree = new Tree();
-      tree.addNode('a');
-      tree.addNode('b');
-      tree.addNode('c');
-      tree.addNode('d');
+      tree.addFile('a');
+      tree.addFile('b');
+      tree.addFile('c');
+      tree.addFile('d');
       tree.addDependency('a', 'b');
       tree.addDependency('b', 'c');
       tree.addDependency('a', 'd');
@@ -114,11 +106,11 @@ describe('Tree()', function () {
       // a -> b
       // c -> d -> e
       let tree = new Tree();
-      tree.addNode('a');
-      tree.addNode('b');
-      tree.addNode('c');
-      tree.addNode('d');
-      tree.addNode('e');
+      tree.addFile('a');
+      tree.addFile('b');
+      tree.addFile('c');
+      tree.addFile('d');
+      tree.addFile('e');
       tree.addDependency('a', 'b');
       tree.addDependency('c', 'd');
       tree.addDependency('d', 'e');
@@ -127,36 +119,10 @@ describe('Tree()', function () {
     });
   });
 
-  describe('#addDependency(parent, child, [data])', function () {
-    it('should create an edge between the parent and child', function () {
-      let tree = new Tree();
-      tree.addNode('a');
-      tree.addNode('b');
-      tree.addDependency('a', 'b');
-
-      assert.isTrue(tree.hasDependency('a', 'b'));
-    });
-
-    it('should automatically create any missing vertices', function () {
-      let tree = new Tree();
-      tree.addDependency('a', 'b');
-
-      assert.isTrue(tree.hasNode('a'));
-      assert.isTrue(tree.hasNode('b'));
-    });
-
-    context('with data', function () {
-      it('should store the value with the edge', function () {
-        let tree = new Tree();
-        tree.addDependency('a', 'b', 'AB');
-
-        assert.strictEqual(tree.getDependency('a', 'b'), 'AB');
-      });
-    });
-  });
-
   describe('#hasDependency(parent, child)', function () {
     let tree = new Tree();
+    tree.addFile('a');
+    tree.addFile('b');
     tree.addDependency('a', 'b');
 
     it('should return false for a missing dependency', function () {
@@ -168,21 +134,47 @@ describe('Tree()', function () {
     });
   });
 
-  describe('#getDependency(parent, child)', function () {
-    let tree = new Tree();
-    tree.addDependency('a', 'b', 'AB');
-    tree.addDependency('a', 'c');
+  describe('#addDependency(parent, child)', function () {
+    it('should create an edge between the parent and child', function () {
+      let tree = new Tree();
+      tree.addFile('a');
+      tree.addFile('b');
+      tree.addDependency('a', 'b');
 
-    it('should return the value stored with the specified node', function () {
-      assert.strictEqual(tree.getDependency('a', 'b'), 'AB');
+      assert.isTrue(tree.hasDependency('a', 'b'));
     });
 
-    it('should return undefined when the node does not have a value', function () {
-      assert.isUndefined(tree.getDependency('a', 'c'));
+    it('should throw if the parent was not already defined', function () {
+      let tree = new Tree();
+
+      assert.throws(function () {
+        tree.addDependency('a', 'b');
+      });
     });
 
-    it('should return undefined when the node does not exist', function () {
-      assert.isUndefined(tree.getDependency('a', 'z'));
+    it('should automatically create the child if not previously defined', function () {
+      let tree = new Tree();
+      tree.addFile('a');
+      tree.addDependency('a', 'b');
+
+      assert.isTrue(tree.hasFile('b'));
+    });
+
+    it('should return the new child object', function () {
+      let tree = new Tree();
+      tree.addFile('a');
+      let child = tree.addDependency('a', 'b');
+
+      assert.strictEqual(tree.getFile('b'), child);
+    });
+
+    it('should not clobber the child object', function () {
+      let tree = new Tree();
+      tree.addFile('a');
+      let file1 = tree.addFile('b');
+      let file2 = tree.addDependency('a', 'b');
+
+      assert.strictEqual(file1, file2);
     });
   });
 
@@ -190,6 +182,8 @@ describe('Tree()', function () {
     it('should remove the edge from the graph', function () {
       // a -> b
       let tree = new Tree();
+      tree.addFile('a');
+      tree.addFile('b');
       tree.addDependency('a', 'b');
 
       // a
@@ -202,21 +196,27 @@ describe('Tree()', function () {
       // a -> b
       //   -> c
       let tree = new Tree();
+      tree.addFile('a');
+      tree.addFile('b');
+      tree.addFile('c');
       tree.addDependency('a', 'b');
       tree.addDependency('a', 'c');
 
       // a -> b
       tree.removeDependency('a', 'c');
 
-      assert.isTrue(tree.hasNode('a'));
-      assert.isTrue(tree.hasNode('b'));
-      assert.isFalse(tree.hasNode('c'));
+      assert.isTrue(tree.hasFile('a'));
+      assert.isTrue(tree.hasFile('b'));
+      assert.isFalse(tree.hasFile('c'));
     });
 
     it('should not remove nodes that are still depended upon', function () {
       // a -> c
       // b ->
       let tree = new Tree();
+      tree.addFile('a');
+      tree.addFile('b');
+      tree.addFile('c');
       tree.addDependency('a', 'c');
       tree.addDependency('b', 'c');
 
@@ -224,9 +224,9 @@ describe('Tree()', function () {
       // b
       tree.removeDependency('b', 'c');
 
-      assert.isTrue(tree.hasNode('a'));
-      assert.isTrue(tree.hasNode('b'));
-      assert.isTrue(tree.hasNode('c'));
+      assert.isTrue(tree.hasFile('a'));
+      assert.isTrue(tree.hasFile('b'));
+      assert.isTrue(tree.hasFile('c'));
     });
   });
 
@@ -234,6 +234,9 @@ describe('Tree()', function () {
     it('should transfer the dependency from -> to', function () {
       // a -> b -> c
       let tree = new Tree();
+      tree.addFile('a');
+      tree.addFile('b');
+      tree.addFile('c');
       tree.addDependency('a', 'b');
       tree.addDependency('b', 'c');
       tree.moveDependency('b', 'a', 'c');
@@ -249,10 +252,10 @@ describe('Tree()', function () {
   describe('#dependenciesOf(node, [recursive])', function () {
     // a -> b -> c -> d
     let tree = new Tree();
-    tree.addNode('a');
-    tree.addNode('b');
-    tree.addNode('c');
-    tree.addNode('d');
+    tree.addFile('a');
+    tree.addFile('b');
+    tree.addFile('c');
+    tree.addFile('d');
     tree.addDependency('a', 'b');
     tree.addDependency('b', 'c');
     tree.addDependency('c', 'd');
@@ -271,10 +274,10 @@ describe('Tree()', function () {
   describe('#dependantsOf(node, [recursive])', function () {
     // a -> b -> c -> d
     let tree = new Tree();
-    tree.addNode('a');
-    tree.addNode('b');
-    tree.addNode('c');
-    tree.addNode('d');
+    tree.addFile('a');
+    tree.addFile('b');
+    tree.addFile('c');
+    tree.addFile('d');
     tree.addDependency('a', 'b');
     tree.addDependency('b', 'c');
     tree.addDependency('c', 'd');
