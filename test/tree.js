@@ -70,6 +70,7 @@ describe('Tree()', function () {
     });
 
     it('should fail if there are still dependencies defined', function () {
+      // a -> b
       let tree = new Tree();
       tree.addFile('a');
       tree.addFile('b');
@@ -119,7 +120,24 @@ describe('Tree()', function () {
     });
   });
 
+  describe('#isSource(location)', function () {
+    // a -> b
+    let tree = new Tree();
+    tree.addFile('a');
+    tree.addFile('b');
+    tree.addDependency('a', 'b');
+
+    it('should return true when the file has no dependants', function () {
+      assert.isTrue(tree.isSource('a'));
+    });
+
+    it('should return false when the file is depended upon', function () {
+      assert.isFalse(tree.isSource('b'));
+    });
+  });
+
   describe('#hasDependency(parent, child)', function () {
+    // a -> b
     let tree = new Tree();
     tree.addFile('a');
     tree.addFile('b');
