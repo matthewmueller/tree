@@ -122,3 +122,8 @@ need to be invoked at various stages.
 When initialized, it will simply reflect the extension of `File#path`. However, some plugins may
 need to modify this value if they end up changing how it should be interpreted. For example, a
 CoffeeScript plugin would switch from `"coffee"` to `"js"`.
+
+### File#contents
+
+This holds the current contents of the file. When first read, this property should be set, and
+subsequent changes to the source code should apply to this property.
