@@ -2,6 +2,9 @@
 
 > The build tree structure used internally by [mako](https://github.com/makojs/core)
 
+[![npm version](https://img.shields.io/npm/v/mako-tree.svg)](https://www.npmjs.com/package/mako-tree)
+[![build status](https://img.shields.io/travis/makojs/tree.svg)](https://travis-ci.org/makojs/tree)
+
 ## Overview
 
 When working with mako build hooks, the first 2 arguments will be the current `file` and the build
