@@ -130,3 +130,27 @@ CoffeeScript plugin would switch from `"coffee"` to `"js"`.
 
 This holds the current contents of the file. When first read, this property should be set, and
 subsequent changes to the source code should apply to this property.
+
+### File#isSource()
+
+Short-hand for `tree.isSource(file.path)`.
+
+### File#hasDependency(child)
+
+Short-hand for `tree.hasDependency(file.path, child)`.
+
+### File#addDependency(child)
+
+Short-hand for `tree.addDependency(file.path, child)`.
+
+### File#removeDependency(child)
+
+Short-hand for `tree.removeDependency(file.path, child)`.
+
+### File#dependencies([recursive])
+
+Short-hand for `tree.dependenciesOf(file.path, recursive)`.
+
+### File#dependants([recursive])
+
+Short-hand for `tree.dependantsOf(file.path, recursive)`.
