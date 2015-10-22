@@ -61,10 +61,15 @@ Removes the file at the given `location` from the tree. To successfully remove a
 be depended on by another file. This is mostly a plumbing function, and plugin authors are likely
 going to use `removeDependency()` instead.
 
-### Tree#getSources()
+### Tree#isSource(location)
+
+Returns a `Boolean` telling whether or not the file at `location` is an entry file. (in other
+words, is not a dependency)
+
+### Tree#getEntries()
 
 Returns an `Array` of all the entry files in this graph. (in other words, files that are at the
-top of the dependency chains)
+end of the dependency chains)
 
 ### Tree#hasDependency(parent, child)
 
@@ -109,6 +114,10 @@ Returns an `Array` of files that depend on the given `file`.
 By default, it will only return the direct ancestors, but adding `recursive` will return a flat
 list of all the files **up** the entire dependency chain.
 
+### Tree#topologicalOrder()
+
+Returns an `Array` of files that can be processed in an order that respects all the dependencies.
+
 ### File(location) *(constructor)*
 
 Each instance represents a file in the overall build.
@@ -131,9 +140,9 @@ CoffeeScript plugin would switch from `"coffee"` to `"js"`.
 This holds the current contents of the file. When first read, this property should be set, and
 subsequent changes to the source code should apply to this property.
 
-### File#isSource()
+### File#isEntry()
 
-Short-hand for `tree.isSource(file.path)`.
+Short-hand for `tree.isEntry(file.path)`.
 
 ### File#hasDependency(child)
 
