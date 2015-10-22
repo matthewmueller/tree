@@ -1,4 +1,13 @@
 
+0.2.0 / 2015-10-22
+==================
+
+  * internal: flipping edge direction (deps now flow to entries)
+  * renamed: `tree.getSources()` to `tree.getEntries()`
+  * renamed: `tree.isSource()` to `tree.isEntry()`
+  * renamed: `file.isSource()` to `file.isEntry()`
+  * added: `tree.topologicalOrder()`
+
 0.1.1 / 2015-10-19
 ==================
 
