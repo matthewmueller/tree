@@ -310,4 +310,22 @@ describe('Tree()', function () {
       });
     });
   });
+
+  describe('#topologicalOrder()', function () {
+    // a <- b <- c <- d
+    //   <- e
+    let tree = new Tree();
+    tree.addFile('a');
+    tree.addFile('b');
+    tree.addFile('c');
+    tree.addFile('d');
+    tree.addDependency('a', 'b');
+    tree.addDependency('a', 'e');
+    tree.addDependency('b', 'c');
+    tree.addDependency('c', 'd');
+
+    it('should return a topolically sorted list', function () {
+      assert.deepEqual(tree.topologicalOrder(), [ 'd', 'e', 'c', 'b', 'a' ]);
+    });
+  });
 });
