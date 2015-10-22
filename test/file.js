@@ -21,19 +21,19 @@ describe('File()', function () {
     assert.strictEqual(file.type, 'js');
   });
 
-  describe('#isSource()', function () {
+  describe('#isEntry()', function () {
     // a -> b
     let tree = new Tree();
     let a = tree.addFile('a');
     let b = tree.addFile('b');
     tree.addDependency('a', 'b');
 
-    it('should return true if the file is a source', function () {
-      assert.isTrue(a.isSource());
+    it('should return true if the file is a Entry', function () {
+      assert.isTrue(a.isEntry());
     });
 
-    it('should return false if the file is not a source', function () {
-      assert.isFalse(b.isSource());
+    it('should return false if the file is not a Entry', function () {
+      assert.isFalse(b.isEntry());
     });
   });
 

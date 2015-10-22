@@ -70,7 +70,7 @@ describe('Tree()', function () {
     });
 
     it('should fail if there are still dependencies defined', function () {
-      // a -> b
+      // a <- b
       let tree = new Tree();
       tree.addFile('a');
       tree.addFile('b');
@@ -82,30 +82,30 @@ describe('Tree()', function () {
     });
   });
 
-  describe('#getSources()', function () {
+  describe('#getEntries()', function () {
     it('should return an empty list', function () {
       let tree = new Tree();
-      assert.deepEqual(tree.getSources(), []);
+      assert.deepEqual(tree.getEntries(), []);
     });
 
     it('should return only the top-level entry', function () {
-      // a -> b -> c
-      //   -> d
+      // a <- b <- c
+      //   <- d
       let tree = new Tree();
       tree.addFile('a');
       tree.addFile('b');
       tree.addFile('c');
       tree.addFile('d');
       tree.addDependency('a', 'b');
-      tree.addDependency('b', 'c');
       tree.addDependency('a', 'd');
+      tree.addDependency('b', 'c');
 
-      assert.deepEqual(tree.getSources(), [ 'a' ]);
+      assert.deepEqual(tree.getEntries(), [ 'a' ]);
     });
 
     it('should return all the top-level entries', function () {
-      // a -> b
-      // c -> d -> e
+      // a <- b
+      // c <- d <- e
       let tree = new Tree();
       tree.addFile('a');
       tree.addFile('b');
@@ -116,28 +116,28 @@ describe('Tree()', function () {
       tree.addDependency('c', 'd');
       tree.addDependency('d', 'e');
 
-      assert.deepEqual(tree.getSources(), [ 'a', 'c' ]);
+      assert.deepEqual(tree.getEntries(), [ 'a', 'c' ]);
     });
   });
 
-  describe('#isSource(location)', function () {
-    // a -> b
+  describe('#isEntry(location)', function () {
+    // a <- b
     let tree = new Tree();
     tree.addFile('a');
     tree.addFile('b');
     tree.addDependency('a', 'b');
 
     it('should return true when the file has no dependants', function () {
-      assert.isTrue(tree.isSource('a'));
+      assert.isTrue(tree.isEntry('a'));
     });
 
     it('should return false when the file is depended upon', function () {
-      assert.isFalse(tree.isSource('b'));
+      assert.isFalse(tree.isEntry('b'));
     });
   });
 
   describe('#hasDependency(parent, child)', function () {
-    // a -> b
+    // a <- b
     let tree = new Tree();
     tree.addFile('a');
     tree.addFile('b');
@@ -198,7 +198,7 @@ describe('Tree()', function () {
 
   describe('#removeDependency(parent, child)', function () {
     it('should remove the edge from the graph', function () {
-      // a -> b
+      // a <- b
       let tree = new Tree();
       tree.addFile('a');
       tree.addFile('b');
@@ -211,8 +211,8 @@ describe('Tree()', function () {
     });
 
     it('should remove the unused nodes', function () {
-      // a -> b
-      //   -> c
+      // a <- b
+      //   <- c
       let tree = new Tree();
       tree.addFile('a');
       tree.addFile('b');
@@ -220,7 +220,7 @@ describe('Tree()', function () {
       tree.addDependency('a', 'b');
       tree.addDependency('a', 'c');
 
-      // a -> b
+      // a <- b
       tree.removeDependency('a', 'c');
 
       assert.isTrue(tree.hasFile('a'));
@@ -229,8 +229,8 @@ describe('Tree()', function () {
     });
 
     it('should not remove nodes that are still depended upon', function () {
-      // a -> c
-      // b ->
+      // a <- c
+      // b <-
       let tree = new Tree();
       tree.addFile('a');
       tree.addFile('b');
@@ -238,7 +238,7 @@ describe('Tree()', function () {
       tree.addDependency('a', 'c');
       tree.addDependency('b', 'c');
 
-      // a -> c
+      // a <- c
       // b
       tree.removeDependency('b', 'c');
 
@@ -249,8 +249,8 @@ describe('Tree()', function () {
   });
 
   describe('#moveDependency(from, to, child)', function () {
-    it('should transfer the dependency from -> to', function () {
-      // a -> b -> c
+    it('should transfer the dependency from <- to', function () {
+      // a <- b <- c
       let tree = new Tree();
       tree.addFile('a');
       tree.addFile('b');
@@ -259,8 +259,8 @@ describe('Tree()', function () {
       tree.addDependency('b', 'c');
       tree.moveDependency('b', 'a', 'c');
 
-      // a -> b
-      //   -> c
+      // a <- b
+      //   <- c
       assert.isTrue(tree.hasDependency('a', 'b'));
       assert.isTrue(tree.hasDependency('a', 'c'));
       assert.isFalse(tree.hasDependency('b', 'c'));
@@ -268,7 +268,7 @@ describe('Tree()', function () {
   });
 
   describe('#dependenciesOf(node, [recursive])', function () {
-    // a -> b -> c -> d
+    // a <- b <- c <- d
     let tree = new Tree();
     tree.addFile('a');
     tree.addFile('b');
@@ -290,7 +290,7 @@ describe('Tree()', function () {
   });
 
   describe('#dependantsOf(node, [recursive])', function () {
-    // a -> b -> c -> d
+    // a <- b <- c <- d
     let tree = new Tree();
     tree.addFile('a');
     tree.addFile('b');
