@@ -1,4 +1,9 @@
 
+0.3.0 / 2015-10-24
+==================
+
+  * added: `tree.getEntries([from])` which filters out entries unreachable from the given `from` file
+
 0.2.0 / 2015-10-22
 ==================
 
