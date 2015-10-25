@@ -82,7 +82,7 @@ describe('Tree()', function () {
     });
   });
 
-  describe('#getEntries()', function () {
+  describe('#getEntries([from])', function () {
     it('should return an empty list', function () {
       let tree = new Tree();
       assert.deepEqual(tree.getEntries(), []);
@@ -117,6 +117,24 @@ describe('Tree()', function () {
       tree.addDependency('d', 'e');
 
       assert.deepEqual(tree.getEntries(), [ 'a', 'c' ]);
+    });
+
+    context('with from', function () {
+      it('should only return all the linked entries', function () {
+        // a <- b
+        // c <- d <- e
+        let tree = new Tree();
+        tree.addFile('a');
+        tree.addFile('b');
+        tree.addFile('c');
+        tree.addFile('d');
+        tree.addFile('e');
+        tree.addDependency('a', 'b');
+        tree.addDependency('c', 'd');
+        tree.addDependency('d', 'e');
+
+        assert.deepEqual(tree.getEntries('e'), [ 'c' ]);
+      });
     });
   });
 

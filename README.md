@@ -66,10 +66,13 @@ going to use `removeDependency()` instead.
 Returns a `Boolean` telling whether or not the file at `location` is an entry file. (in other
 words, is not a dependency)
 
-### Tree#getEntries()
+### Tree#getEntries([from])
 
 Returns an `Array` of all the entry files in this graph. (in other words, files that are at the
 end of the dependency chains)
+
+If `from` is provided, the returned list will only include entries that are reachable from that
+specified file.
 
 ### Tree#hasDependency(parent, child)
 
