@@ -134,14 +134,21 @@ The absolute path to where this file exists on disk.
 The current file type associated with this file. This value is used to determine what plugins/hooks
 need to be invoked at various stages.
 
-When initialized, it will simply reflect the extension of `File#path`. However, some plugins may
-need to modify this value if they end up changing how it should be interpreted. For example, a
-CoffeeScript plugin would switch from `"coffee"` to `"js"`.
+**NOTE:** plugins can modify this value if their work changes the file type. (such as compiling
+`.coffee` into `.js`)
 
 ### File#contents
 
 This holds the current contents of the file. When first read, this property should be set, and
 subsequent changes to the source code should apply to this property.
+
+**NOTE:** must be set by a plugin.
+
+### File#output
+
+The absolute path to where this file should be written on disk.
+
+**NOTE:** must be set by a plugin.
 
 ### File#isEntry()
 
