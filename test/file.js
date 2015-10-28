@@ -116,4 +116,46 @@ describe('File()', function () {
       assert.deepEqual(c.dependants(true), [ 'b', 'a' ]);
     });
   });
+
+  describe('#clone(tree)', function () {
+    it('should create a new copy of the file', function () {
+      let tree1 = new Tree();
+      let a1 = tree1.addFile('a');
+      let tree2 = new Tree();
+      let a2 = a1.clone(tree2);
+
+      assert.notStrictEqual(a1, a2);
+      assert.instanceOf(a2, File);
+    });
+
+    it('should copy additional properties', function () {
+      let tree1 = new Tree();
+      let a1 = tree1.addFile('a');
+      a1.contents = 'abc123';
+      let tree2 = new Tree();
+      let a2 = a1.clone(tree2);
+
+      assert.strictEqual(a1.contents, a2.contents);
+    });
+
+    it('should ensure that changes to type follow the clone', function () {
+      let tree1 = new Tree();
+      let a1 = tree1.addFile('a.txt');
+      a1.type = 'html';
+      let tree2 = new Tree();
+      let a2 = a1.clone(tree2);
+
+      assert.strictEqual(a1.type, a2.type);
+    });
+
+    it('should ensure that the tree is not used from the original', function () {
+      let tree1 = new Tree();
+      let a1 = tree1.addFile('a.txt');
+      a1.type = 'html';
+      let tree2 = new Tree();
+      let a2 = a1.clone(tree2);
+
+      assert.strictEqual(a2.tree, tree2);
+    });
+  });
 });

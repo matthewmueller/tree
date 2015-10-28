@@ -346,4 +346,24 @@ describe('Tree()', function () {
       assert.deepEqual(tree.topologicalOrder(), [ 'd', 'e', 'c', 'b', 'a' ]);
     });
   });
+
+  describe('#clone()', function () {
+    // a <- b
+    //   <- c
+    let tree = new Tree();
+    tree.addFile('a');
+    tree.addFile('b');
+    tree.addFile('c');
+    tree.addDependency('a', 'b');
+    tree.addDependency('a', 'c');
+
+    it('should make a clone of the original', function () {
+      let clone = tree.clone();
+
+      assert.notStrictEqual(tree, clone);
+      assert.instanceOf(clone, Tree);
+      assert.strictEqual(tree.size(), clone.size());
+      assert.deepEqual(tree.topologicalOrder(), clone.topologicalOrder());
+    });
+  });
 });
