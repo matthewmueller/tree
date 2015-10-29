@@ -24,15 +24,15 @@ describe('File()', function () {
   describe('#isEntry()', function () {
     // a -> b
     let tree = new Tree();
-    let a = tree.addFile('a');
+    let a = tree.addFile('a', true);
     let b = tree.addFile('b');
     tree.addDependency('a', 'b');
 
-    it('should return true if the file is a Entry', function () {
+    it('should return true if the file is flagged as an entry', function () {
       assert.isTrue(a.isEntry());
     });
 
-    it('should return false if the file is not a Entry', function () {
+    it('should return false if the file is not flagged as an entry', function () {
       assert.isFalse(b.isEntry());
     });
   });
