@@ -3,6 +3,8 @@
 > The build tree structure used internally by [mako](https://github.com/makojs/core)
 
 [![npm version](https://img.shields.io/npm/v/mako-tree.svg)](https://www.npmjs.com/package/mako-tree)
+[![npm dependencies](https://img.shields.io/david/makojs/tree.svg)](https://david-dm.org/makojs/tree)
+[![npm dev dependencies](https://img.shields.io/david/dev/makojs/tree.svg)](https://david-dm.org/makojs/tree#info=devDependencies)
 [![build status](https://img.shields.io/travis/makojs/tree.svg)](https://travis-ci.org/makojs/tree)
 
 ## Overview
