@@ -1,4 +1,11 @@
 
+0.4.0 / 2015-10-28
+==================
+
+  * adding tree.prune() to enable cleaning up orphaned files
+  * restoring concept of entries internally
+  * added cloning capability
+
 0.3.2 / 2015-10-27
 ==================
 
