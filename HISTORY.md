@@ -1,4 +1,9 @@
 
+0.4.1 / 2015-10-29
+==================
+
+  * allowing prune to remove files not able to reach a specific list of entries
+
 0.4.0 / 2015-10-28
 ==================
 
