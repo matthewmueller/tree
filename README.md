@@ -94,15 +94,6 @@ Removes the specified dependency relationship, basically saying that `parent` no
 plugins to only concern themselves with the relationships they are aware of, leaving the overall
 tree management to mako.
 
-### Tree#moveDependency(from, to, child)
-
-A helper for moving a dependency on `child` from one parent to another, which is more explicit than
-manually adding and removing the dependency links. (which must be done in the right order due to
-the automatic cleanup behavior of removing dependencies)
-
-An example use case: after inlining a tree of CSS files, the images/fonts/etc will need to be moved
-from being dependencies of the input files, to the single output file.
-
 ### Tree#dependenciesOf(file, [recursive])
 
 Returns an `Array` of files that are dependencies of the given `file`.
@@ -121,9 +112,22 @@ list of all the files **up** the entire dependency chain.
 
 Returns an `Array` of files that can be processed in an order that respects all the dependencies.
 
-### File(location) *(constructor)*
+### Tree#clone()
 
-Each instance represents a file in the overall build.
+Returns a new `Tree` object that is an effective clone of the original.
+
+### Tree#prune()
+
+Removes any orphaned files from the graph. A file is considered orphaned if it has no path to any
+file marked as an entry.
+
+### File(location, tree, [entry]) *(constructor)*
+
+Each instance represents a file in the overall build. The `location` is an absolute path, `tree`
+is the tree that contains this particular file and `entry` flags a file as an entry.
+
+Entry files are uniquely handled, particularly when it comes to `Tree#prune()`. Any files that do
+not have a path to some entry file are considered orphaned, and will be pruned.
 
 ### File#path
 
@@ -135,7 +139,7 @@ The current file type associated with this file. This value is used to determine
 need to be invoked at various stages.
 
 **NOTE:** plugins can modify this value if their work changes the file type. (such as compiling
-`.coffee` into `.js`)
+`coffee` into `js`)
 
 ### File#contents
 
@@ -149,6 +153,23 @@ subsequent changes to the source code should apply to this property.
 The absolute path to where this file should be written on disk.
 
 **NOTE:** must be set by a plugin.
+
+### File#analyzing
+
+An internal flag that helps mako know when a particular file is currently being analyzed. (to
+prevent race conditions and duplicating efforts) There is currently no public use for this
+property.
+
+### File#analyzed
+
+A flag that helps mako know when a particular file has already been analyzed, so it doesn't
+continuously analyze the same file during subsequent builds.
+
+In a `prewrite` hook, setting this property to `false` is effectively marking this file as "dirty",
+causing mako to run all the analyze hooks again.
+
+For example, [mako-stat](http://github.com/makojs/stat) will turn this flag off whenever the
+modification time for a file has changed.
 
 ### File#isEntry()
 
