@@ -348,7 +348,7 @@ describe('Tree()', function () {
     });
   });
 
-  describe('#prune()', function () {
+  describe('#prune([entries])', function () {
     it('should only remove orphaned files', function () {
       // a* <- b
       // c
@@ -418,6 +418,24 @@ describe('Tree()', function () {
       tree.prune();
 
       assert.deepEqual(tree.topologicalOrder(), [ 'd', 'c', 'b', 'a' ]);
+    });
+
+    context('with entries', function () {
+      it('should prune anything that cannot reach the provided list of files', function () {
+        // a* <- b
+        // c* <- d
+        let tree = new Tree();
+        tree.addFile('a', true);
+        tree.addFile('b');
+        tree.addFile('c', true);
+        tree.addFile('d');
+        tree.addDependency('a', 'b');
+        tree.addDependency('c', 'd');
+
+        tree.prune([ 'c' ]);
+
+        assert.deepEqual(tree.topologicalOrder(), [ 'd', 'c' ]);
+      });
     });
   });
 });

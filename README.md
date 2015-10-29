@@ -116,10 +116,13 @@ Returns an `Array` of files that can be processed in an order that respects all 
 
 Returns a new `Tree` object that is an effective clone of the original.
 
-### Tree#prune()
+### Tree#prune([entries])
 
 Removes any orphaned files from the graph. A file is considered orphaned if it has no path to any
 file marked as an entry.
+
+If `entries` is passed, (must be an `Array`) then any files that cannot reach _those_ files will
+be removed from the graph. (essentially overrides the internal list of entries)
 
 ### File(location, tree, [entry]) *(constructor)*
 
