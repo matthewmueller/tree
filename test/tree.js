@@ -347,4 +347,77 @@ describe('Tree()', function () {
       assert.deepEqual(tree.topologicalOrder(), clone.topologicalOrder());
     });
   });
+
+  describe('#prune()', function () {
+    it('should only remove orphaned files', function () {
+      // a* <- b
+      // c
+      let tree = new Tree();
+      tree.addFile('a', true);
+      tree.addFile('b');
+      tree.addFile('c');
+      tree.addDependency('a', 'b');
+
+      tree.prune();
+
+      assert.strictEqual(tree.size(), 2);
+      assert.isFalse(tree.hasFile('c'));
+    });
+
+    it('should recursively remove orphaned trees', function () {
+      // a* <- b
+      // c  <- d
+      let tree = new Tree();
+      tree.addFile('a', true);
+      tree.addFile('b');
+      tree.addFile('c');
+      tree.addFile('d');
+      tree.addDependency('a', 'b');
+      tree.addDependency('c', 'd');
+
+      tree.prune();
+
+      assert.strictEqual(tree.size(), 2);
+      assert.isFalse(tree.hasFile('c'));
+      assert.isFalse(tree.hasFile('d'));
+    });
+
+    it('should not remove dependencies that are still depended on elsewhere', function () {
+      // a* <- b <- c
+      // d  <-
+      let tree = new Tree();
+      tree.addFile('a', true);
+      tree.addFile('b');
+      tree.addFile('c');
+      tree.addFile('d');
+      tree.addDependency('a', 'b');
+      tree.addDependency('b', 'c');
+      tree.addDependency('d', 'b');
+
+      tree.prune();
+
+      assert.deepEqual(tree.topologicalOrder(), [ 'c', 'b', 'a' ]);
+    });
+
+    it('should not properly handle a complex case', function () {
+      // a* <- b <- c <- d
+      // e  <- f <-
+      let tree = new Tree();
+      tree.addFile('a', true);
+      tree.addFile('b');
+      tree.addFile('c');
+      tree.addFile('d');
+      tree.addFile('e');
+      tree.addFile('f');
+      tree.addDependency('a', 'b');
+      tree.addDependency('b', 'c');
+      tree.addDependency('c', 'd');
+      tree.addDependency('e', 'f');
+      tree.addDependency('f', 'c');
+
+      tree.prune();
+
+      assert.deepEqual(tree.topologicalOrder(), [ 'd', 'c', 'b', 'a' ]);
+    });
+  });
 });
