@@ -1,4 +1,9 @@
 
+0.5.2 / 2015-12-01
+==================
+
+  * adding method to retrieve file original type
+
 0.5.1 / 2015-12-01
 ==================
 
