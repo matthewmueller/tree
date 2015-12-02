@@ -1,4 +1,9 @@
 
+0.5.1 / 2015-12-01
+==================
+
+  * do not throw if analyzing is true, it always will be during the preread phase
+
 0.5.0 / 2015-12-01
 ==================
 
