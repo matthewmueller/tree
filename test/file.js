@@ -131,12 +131,6 @@ describe('File()', function () {
       file.dirty();
       assert.strictEqual(file.type, 'jade');
     });
-
-    it('should throw when the analyzing flag is turned on', function () {
-      let file = new File('index.jade');
-      file.analyzing = true;
-      assert.throws(() => file.dirty());
-    });
   });
 
   describe('#clone(tree)', function () {
