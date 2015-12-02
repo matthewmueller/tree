@@ -133,6 +133,19 @@ describe('File()', function () {
     });
   });
 
+  describe('#initialType()', function () {
+    it('should return the extension of the full path', function () {
+      let file = new File('index.jade');
+      assert.strictEqual(file.initialType(), 'jade');
+    });
+
+    it('should return the original extension even when type is changed', function () {
+      let file = new File('index.jade');
+      file.type = 'html';
+      assert.strictEqual(file.initialType(), 'jade');
+    });
+  });
+
   describe('#clone(tree)', function () {
     it('should create a new copy of the file', function () {
       let tree1 = new Tree();
