@@ -117,6 +117,28 @@ describe('File()', function () {
     });
   });
 
+  describe('#dirty()', function () {
+    it('should turn off the analyzed flag', function () {
+      let file = new File('index.jade');
+      file.analyzed = true;
+      file.dirty();
+      assert.isFalse(file.analyzed);
+    });
+
+    it('should reset the file type', function () {
+      let file = new File('index.jade');
+      file.type = 'html'; // mock transpilation
+      file.dirty();
+      assert.strictEqual(file.type, 'jade');
+    });
+
+    it('should throw when the analyzing flag is turned on', function () {
+      let file = new File('index.jade');
+      file.analyzing = true;
+      assert.throws(() => file.dirty());
+    });
+  });
+
   describe('#clone(tree)', function () {
     it('should create a new copy of the file', function () {
       let tree1 = new Tree();
