@@ -1,4 +1,9 @@
 
+0.5.0 / 2015-12-01
+==================
+
+  * adding ability to mark a file as dirty externally
+
 0.4.1 / 2015-10-29
 ==================
 
