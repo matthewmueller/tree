@@ -76,6 +76,17 @@ describe('Tree()', function () {
     });
   });
 
+  describe('#getFiles()', function () {
+    let tree = new Tree();
+    tree.addFile('a');
+    tree.addFile('b');
+    tree.addFile('c');
+
+    it('should return a list of all the files in the tree', function () {
+      assert.deepEqual(tree.getFiles(), [ 'a', 'b', 'c' ]);
+    });
+  });
+
   describe('#removeFile(location)', function () {
     it('should remove the file from the tree', function () {
       let tree = new Tree();
