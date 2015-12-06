@@ -1,4 +1,13 @@
 
+0.6.0 / 2015-12-05
+==================
+
+  * adding `Tree#getFiles()`
+  * removing `Tree#topologicalOrder()`
+  * adding `options` argument to `Tree#getFiles()`
+  * replacing `recursive` with `options` argument in `Tree#dependenciesOf()` and `Tree#dependantsOf()`
+  * adding `options.objects` to `Tree#getFiles()`, `Tree#getEntries()`, `Tree#dependenciesOf()` and `Tree#dependantsOf()`
+
 0.5.2 / 2015-12-01
 ==================
 
