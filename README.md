@@ -57,6 +57,16 @@ corresponding `File` instance.
 Returns the `File` instance for the file at the given `location`. It is assumed to already be part
 of the graph, and will throw an error if not found.
 
+### Tree#getFiles([options])
+
+Returns an `Array` of all the files in this graph.
+
+If `options.topological` is set, the returned list will be in
+[topological order](https://en.wikipedia.org/wiki/Topological_sorting), which respects all
+dependencies so processing is safe where order matters.
+
+If `options.objects` is set, the returned list will be `File` objects.
+
 ### Tree#removeFile(location)
 
 Removes the file at the given `location` from the tree. To successfully remove a file, it must not
@@ -68,13 +78,15 @@ going to use `removeDependency()` instead.
 Returns a `Boolean` telling whether or not the file at `location` is an entry file. (in other
 words, is not a dependency)
 
-### Tree#getEntries([from])
+### Tree#getEntries([options])
 
 Returns an `Array` of all the entry files in this graph. (in other words, files that are at the
 end of the dependency chains)
 
-If `from` is provided, the returned list will only include entries that are reachable from that
+If `options.from` is set, the returned list will only include entries that are reachable from that
 specified file.
+
+If `options.objects` is set, the returned list will be `File` objects.
 
 ### Tree#hasDependency(parent, child)
 
@@ -96,23 +108,23 @@ Removes the specified dependency relationship, basically saying that `parent` no
 plugins to only concern themselves with the relationships they are aware of, leaving the overall
 tree management to mako.
 
-### Tree#dependenciesOf(file, [recursive])
+### Tree#dependenciesOf(file, [options])
 
 Returns an `Array` of files that are dependencies of the given `file`.
 
-By default, it will only return the direct descendants, but adding `recursive` will return a flat
-list of all the files **down** the entire dependency chain.
+By default, it will only return the direct descendants, but setting `options.recursive` will return
+a flat list of all the files **down** the entire dependency chain.
 
-### Tree#dependantsOf(file, [recursive])
+If `options.objects` is set, the returned list will be `File` objects.
+
+### Tree#dependantsOf(file, [options])
 
 Returns an `Array` of files that depend on the given `file`.
 
-By default, it will only return the direct ancestors, but adding `recursive` will return a flat
-list of all the files **up** the entire dependency chain.
+By default, it will only return the direct ancestors, but adding `options.recursive` will return a
+flat list of all the files **up** the entire dependency chain.
 
-### Tree#topologicalOrder()
-
-Returns an `Array` of files that can be processed in an order that respects all the dependencies.
+If `options.objects` is set, the returned list will be `File` objects.
 
 ### Tree#clone()
 
@@ -187,13 +199,13 @@ Short-hand for `tree.addDependency(file.path, child)`.
 
 Short-hand for `tree.removeDependency(file.path, child)`.
 
-### File#dependencies([recursive])
+### File#dependencies([options])
 
-Short-hand for `tree.dependenciesOf(file.path, recursive)`.
+Short-hand for `tree.dependenciesOf(file.path, options)`.
 
-### File#dependants([recursive])
+### File#dependants([options])
 
-Short-hand for `tree.dependantsOf(file.path, recursive)`.
+Short-hand for `tree.dependantsOf(file.path, options)`.
 
 ### File#dirty()
 

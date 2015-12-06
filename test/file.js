@@ -83,7 +83,7 @@ describe('File()', function () {
     });
   });
 
-  describe('#dependencies(recursive)', function () {
+  describe('#dependencies([options])', function () {
     // a -> b -> c -> d
     let tree = new Tree();
     let a = tree.addFile('a');
@@ -95,12 +95,22 @@ describe('File()', function () {
       assert.deepEqual(b.dependencies(), [ 'c' ]);
     });
 
-    it('should return the entire dependency chain', function () {
-      assert.deepEqual(b.dependencies(true), [ 'c', 'd' ]);
+    context('with options', function () {
+      context('.recursive', function () {
+        it('should return the entire dependency chain', function () {
+          assert.deepEqual(b.dependencies({ recursive: true }), [ 'c', 'd' ]);
+        });
+      });
+
+      context('.objects', function () {
+        it('should return the file objects', function () {
+          b.dependencies({ objects: true }).forEach(file => assert.instanceOf(file, File));
+        });
+      });
     });
   });
 
-  describe('#dependants(recursive)', function () {
+  describe('#dependants([options])', function () {
     // a -> b -> c -> d
     let tree = new Tree();
     let a = tree.addFile('a');
@@ -112,8 +122,18 @@ describe('File()', function () {
       assert.deepEqual(c.dependants(), [ 'b' ]);
     });
 
-    it('should return the entire dependency chain', function () {
-      assert.deepEqual(c.dependants(true), [ 'b', 'a' ]);
+    context('with options', function () {
+      context('.recursive', function () {
+        it('should return the entire dependency chain', function () {
+          assert.deepEqual(c.dependants({ recursive: true }), [ 'b', 'a' ]);
+        });
+      });
+
+      context('.objects', function () {
+        it('should return the file objects', function () {
+          c.dependants({ objects: true }).forEach(file => assert.instanceOf(file, File));
+        });
+      });
     });
   });
 

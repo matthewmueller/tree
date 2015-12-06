@@ -76,14 +76,36 @@ describe('Tree()', function () {
     });
   });
 
-  describe('#getFiles()', function () {
+  describe('#getFiles([options])', function () {
+    // a <- b <- c <- d
+    //   <- e
     let tree = new Tree();
     tree.addFile('a');
     tree.addFile('b');
     tree.addFile('c');
+    tree.addFile('d');
+    tree.addFile('e');
+    tree.addDependency('a', 'b');
+    tree.addDependency('a', 'e');
+    tree.addDependency('b', 'c');
+    tree.addDependency('c', 'd');
 
     it('should return a list of all the files in the tree', function () {
-      assert.deepEqual(tree.getFiles(), [ 'a', 'b', 'c' ]);
+      assert.deepEqual(tree.getFiles(), [ 'a', 'b', 'c', 'd', 'e' ]);
+    });
+
+    context('with options', function () {
+      context('.topological', function () {
+        it('should sort the results topologically', function () {
+          assert.deepEqual(tree.getFiles({ topological: true }), [ 'd', 'e', 'c', 'b', 'a' ]);
+        });
+      });
+
+      context('.objects', function () {
+        it('should return the file objects', function () {
+          tree.getFiles({ objects: true }).forEach(file => assert.instanceOf(file, File));
+        });
+      });
     });
   });
 
@@ -109,7 +131,7 @@ describe('Tree()', function () {
     });
   });
 
-  describe('#getEntries([from])', function () {
+  describe('#getEntries([options])', function () {
     it('should return an empty list', function () {
       let tree = new Tree();
       assert.deepEqual(tree.getEntries(), []);
@@ -146,21 +168,29 @@ describe('Tree()', function () {
       assert.deepEqual(tree.getEntries(), [ 'a', 'c' ]);
     });
 
-    context('with from', function () {
-      it('should only return all the linked entries', function () {
-        // a <- b
-        // c <- d <- e
-        let tree = new Tree();
-        tree.addFile('a', true);
-        tree.addFile('b');
-        tree.addFile('c', true);
-        tree.addFile('d');
-        tree.addFile('e');
-        tree.addDependency('a', 'b');
-        tree.addDependency('c', 'd');
-        tree.addDependency('d', 'e');
+    context('with options', function () {
+      // a <- b
+      // c <- d <- e
+      let tree = new Tree();
+      tree.addFile('a', true);
+      tree.addFile('b');
+      tree.addFile('c', true);
+      tree.addFile('d');
+      tree.addFile('e');
+      tree.addDependency('a', 'b');
+      tree.addDependency('c', 'd');
+      tree.addDependency('d', 'e');
 
-        assert.deepEqual(tree.getEntries('e'), [ 'c' ]);
+      context('.from', function () {
+        it('should only return all the linked entries', function () {
+          assert.deepEqual(tree.getEntries({ from: 'e' }), [ 'c' ]);
+        });
+      });
+
+      context('.objects', function () {
+        it('should return the file objects', function () {
+          tree.getEntries({ objects: true }).forEach(file => assert.instanceOf(file, File));
+        });
       });
     });
   });
@@ -277,7 +307,7 @@ describe('Tree()', function () {
     });
   });
 
-  describe('#dependenciesOf(node, [recursive])', function () {
+  describe('#dependenciesOf(node, [options])', function () {
     // a <- b <- c <- d
     let tree = new Tree();
     tree.addFile('a');
@@ -292,14 +322,22 @@ describe('Tree()', function () {
       assert.deepEqual(tree.dependenciesOf('a'), [ 'b' ]);
     });
 
-    context('with recursive', function () {
-      it('should all the dependencies of node', function () {
-        assert.deepEqual(tree.dependenciesOf('a', true), [ 'b', 'c', 'd' ]);
+    context('with options', function () {
+      context('.recursive', function () {
+        it('should all the dependencies of node', function () {
+          assert.deepEqual(tree.dependenciesOf('a', { recursive: true }), [ 'b', 'c', 'd' ]);
+        });
+      });
+
+      context('.objects', function () {
+        it('should return the file objects', function () {
+          tree.dependenciesOf('a', { objects: true }).forEach(file => assert.instanceOf(file, File));
+        });
       });
     });
   });
 
-  describe('#dependantsOf(node, [recursive])', function () {
+  describe('#dependantsOf(node, [options])', function () {
     // a <- b <- c <- d
     let tree = new Tree();
     tree.addFile('a');
@@ -314,28 +352,18 @@ describe('Tree()', function () {
       assert.deepEqual(tree.dependantsOf('d'), [ 'c' ]);
     });
 
-    context('with recursive', function () {
-      it('should all the dependencies of node', function () {
-        assert.deepEqual(tree.dependantsOf('d', true), [ 'c', 'b', 'a' ]);
+    context('with options', function () {
+      context('.recursive', function () {
+        it('should all the dependencies of node', function () {
+          assert.deepEqual(tree.dependantsOf('d', { recursive: true }), [ 'c', 'b', 'a' ]);
+        });
       });
-    });
-  });
 
-  describe('#topologicalOrder()', function () {
-    // a <- b <- c <- d
-    //   <- e
-    let tree = new Tree();
-    tree.addFile('a');
-    tree.addFile('b');
-    tree.addFile('c');
-    tree.addFile('d');
-    tree.addDependency('a', 'b');
-    tree.addDependency('a', 'e');
-    tree.addDependency('b', 'c');
-    tree.addDependency('c', 'd');
-
-    it('should return a topolically sorted list', function () {
-      assert.deepEqual(tree.topologicalOrder(), [ 'd', 'e', 'c', 'b', 'a' ]);
+      context('.objects', function () {
+        it('should return the file objects', function () {
+          tree.dependantsOf('d', { objects: true }).forEach(file => assert.instanceOf(file, File));
+        });
+      });
     });
   });
 
@@ -355,7 +383,7 @@ describe('Tree()', function () {
       assert.notStrictEqual(tree, clone);
       assert.instanceOf(clone, Tree);
       assert.strictEqual(tree.size(), clone.size());
-      assert.deepEqual(tree.topologicalOrder(), clone.topologicalOrder());
+      assert.deepEqual(tree.getFiles({ topolical: true }), clone.getFiles({ topolical: true }));
     });
   });
 
@@ -407,7 +435,7 @@ describe('Tree()', function () {
 
       tree.prune();
 
-      assert.deepEqual(tree.topologicalOrder(), [ 'c', 'b', 'a' ]);
+      assert.deepEqual(tree.getFiles({ topological: true }), [ 'c', 'b', 'a' ]);
     });
 
     it('should not properly handle a complex case', function () {
@@ -428,7 +456,7 @@ describe('Tree()', function () {
 
       tree.prune();
 
-      assert.deepEqual(tree.topologicalOrder(), [ 'd', 'c', 'b', 'a' ]);
+      assert.deepEqual(tree.getFiles({ topological: true }), [ 'd', 'c', 'b', 'a' ]);
     });
 
     context('with entries', function () {
@@ -445,7 +473,7 @@ describe('Tree()', function () {
 
         tree.prune([ 'c' ]);
 
-        assert.deepEqual(tree.topologicalOrder(), [ 'd', 'c' ]);
+        assert.deepEqual(tree.getFiles({ topological: true }), [ 'd', 'c' ]);
       });
     });
   });
