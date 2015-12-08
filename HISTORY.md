@@ -1,4 +1,9 @@
 
+0.6.1 / 2015-12-07
+==================
+
+  * fixing getFiles with both topological and objects options passed
+
 0.6.0 / 2015-12-05
 ==================
 
