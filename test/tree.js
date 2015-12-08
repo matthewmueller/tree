@@ -105,6 +105,10 @@ describe('Tree()', function () {
         it('should return the file objects', function () {
           tree.getFiles({ objects: true }).forEach(file => assert.instanceOf(file, File));
         });
+
+        it('should even work with options.topological', function () {
+          tree.getFiles({ topological: true, objects: true }).forEach(file => assert.instanceOf(file, File));
+        });
       });
     });
   });
