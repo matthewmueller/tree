@@ -7,7 +7,7 @@ let Tree = require('../lib/tree');
 
 describe('File()', function () {
   it('should be a constructor function', function () {
-    assert.instanceOf(new File(), File);
+    assert.instanceOf(new File('a.js'), File);
   });
 
   it('should set the path property', function () {
