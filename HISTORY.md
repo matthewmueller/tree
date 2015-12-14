@@ -1,4 +1,9 @@
 
+0.6.2 / 2015-12-13
+==================
+
+  * adding comments, debug always uses relative paths
+
 0.6.1 / 2015-12-07
 ==================
 
