@@ -1,4 +1,9 @@
 
+0.7.0 / 2016-01-17
+==================
+
+  * adding timing utilities to file (recording) and tree (aggregating)
+
 0.6.3 / 2015-12-13
 ==================
 
