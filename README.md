@@ -126,6 +126,15 @@ flat list of all the files **up** the entire dependency chain.
 
 If `options.objects` is set, the returned list will be `File` objects.
 
+### Tree#timing()
+
+Aggregates all the timers for all files in the tree. These stats are useful when trying to figure
+out which plugins/hooks are taking up the most time so they can hopefully be optimized.
+
+### Tree#size()
+
+Returns the number of files in the tree.
+
 ### Tree#clone()
 
 Returns a new `Tree` object that is an effective clone of the original.
@@ -214,6 +223,21 @@ Can be used by the `prewrite` hook to mark a file as "dirty" so that it should b
 For example, [mako-stat](http://github.com/makojs/stat) will use this method whenever the
 modification time for a file has changed, which indicates to mako that analyze needs to be run
 again for this file.
+
+### File#time(label)
+
+Start a timer using the given `label` to describe what is being timed. (eg: "read", "babel")
+For simple hooks/plugins, a single timer is all you need.
+
+If a plugin wants to have multiple timers, it should use it's name as a prefix. (eg: "js:pack",
+"css:dependencies")
+
+### File#timeEnd(label)
+
+Stops the timer using the given `label`.
+
+The value saved here will be aggregated by the tree to give a glimpse of the overall time spent
+by varying plugins.
 
 ### File#clone(tree)
 
