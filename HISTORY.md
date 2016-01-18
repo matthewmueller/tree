@@ -1,4 +1,9 @@
 
+0.7.1 / 2016-01-18
+==================
+
+  * do not clone stat maps, they don't really end up being useful between builds
+
 0.7.0 / 2016-01-17
 ==================
 
