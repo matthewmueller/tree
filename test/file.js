@@ -286,7 +286,7 @@ describe('File()', function () {
       assert.strictEqual(a2.tree, tree2);
     });
 
-    it('should clone the timing maps', function () {
+    it('should create new timing maps', function () {
       let x = 0;
       let y = 1;
       monkeypatch(process, 'hrtime', function (original, start) {
@@ -300,6 +300,30 @@ describe('File()', function () {
       a1.timeEnd('test');
       let tree2 = new Tree();
       let a2 = a1.clone(tree2);
+
+      assert.notStrictEqual(a2.timers, a1.timers);
+      assert.notStrictEqual(a2.timing, a1.timing);
+
+      assert.strictEqual(a2.timers.size, 0);
+      assert.strictEqual(a2.timing.size, 0);
+
+      process.hrtime.unpatch();
+    });
+
+    it('should clone the timing maps', function () {
+      let x = 0;
+      let y = 1;
+      monkeypatch(process, 'hrtime', function (original, start) {
+        if (start) return [ 1 * x++, 25 * y++ ];
+        return [ x, y * 1000 ];
+      });
+
+      let tree1 = new Tree();
+      let a1 = tree1.addFile('a');
+      a1.time('test');
+      a1.timeEnd('test');
+      let tree2 = new Tree();
+      let a2 = a1.clone(tree2, true);
 
       assert.notStrictEqual(a2.timers, a1.timers);
       assert.notStrictEqual(a2.timing, a1.timing);
