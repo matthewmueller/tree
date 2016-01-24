@@ -3,7 +3,6 @@
 
 let assert = require('chai').assert;
 let File = require('../lib/file');
-let monkeypatch = require('monkeypatch');
 let Tree = require('../lib/tree');
 
 describe('Tree()', function () {
@@ -369,64 +368,6 @@ describe('Tree()', function () {
           tree.dependantsOf('d', { objects: true }).forEach(file => assert.instanceOf(file, File));
         });
       });
-    });
-  });
-
-  describe('#timing()', function () {
-    beforeEach(function () {
-      let x = 0;
-      let y = 1;
-
-      monkeypatch(process, 'hrtime', function (original, start) {
-        if (start) return [ 1 * x++, 25 * y++ ];
-        return true;
-      });
-    });
-
-    afterEach(function () {
-      process.hrtime.unpatch();
-    });
-
-    it('should collect the timing from a single file', function () {
-      let tree = new Tree();
-      let a = tree.addFile('a');
-      a.time('test');
-      a.timeEnd('test');
-
-      let timing = tree.timing();
-      assert.deepEqual(timing.get('test'), [ 0, 25 ]); // [0,25]
-    });
-
-    it('should aggregate the timing from multiple files', function () {
-      let tree = new Tree();
-      let a = tree.addFile('a');
-      let b = tree.addFile('b');
-      let c = tree.addFile('c');
-      a.time('test');
-      a.timeEnd('test');
-      b.time('test');
-      b.timeEnd('test');
-      c.time('test');
-      c.timeEnd('test');
-
-      let timing = tree.timing();
-      assert.deepEqual(timing.get('test'), [ 3, 150 ]); // [0,25] + [1,50] + [2,75]
-    });
-
-    it('should not mix labels', function () {
-      let tree = new Tree();
-      let a = tree.addFile('a');
-      let b = tree.addFile('b');
-      a.time('test');
-      a.timeEnd('test');
-      b.time('test');
-      b.timeEnd('test');
-      a.time('another');
-      a.timeEnd('another');
-
-      let timing = tree.timing();
-      assert.deepEqual(timing.get('test'), [ 1, 75 ]);    // [0,25] + [1,50]
-      assert.deepEqual(timing.get('another'), [ 2, 75 ]); // [2,75]
     });
   });
 

@@ -3,7 +3,6 @@
 
 let assert = require('chai').assert;
 let File = require('../lib/file');
-let monkeypatch = require('monkeypatch');
 let Tree = require('../lib/tree');
 
 describe('File()', function () {
@@ -167,84 +166,6 @@ describe('File()', function () {
     });
   });
 
-  describe('#time(label)', function () {
-    afterEach(function () {
-      if (process.hrtime.unpatch) process.hrtime.unpatch();
-    });
-
-    it('should return the current time', function () {
-      let hrtime = [ 123, 456 ];
-      monkeypatch(process, 'hrtime', () => hrtime);
-
-      let file = new File('index.txt');
-      assert.deepEqual(file.time('test'), hrtime);
-    });
-
-    it('should save the current time in timers', function () {
-      let hrtime = [ 123, 456 ];
-      monkeypatch(process, 'hrtime', () => hrtime);
-
-      let file = new File('index.txt');
-      file.time('test');
-      assert.deepEqual(file.timers.get('test'), hrtime);
-    });
-
-    it('should overwrite the current time when called multiple times', function () {
-      let x = 0;
-      let hrtimes = [ [ 123, 456 ], [ 246, 357 ] ];
-      monkeypatch(process, 'hrtime', () => hrtimes[x++]);
-
-      let file = new File('index.txt');
-      file.time('test');
-      file.time('test');
-      assert.deepEqual(file.timers.get('test'), hrtimes[1]);
-    });
-  });
-
-  describe('#timeEnd(label)', function () {
-    afterEach(function () {
-      if (process.hrtime.unpatch) process.hrtime.unpatch();
-    });
-
-    it('should return the elapsed time', function () {
-      monkeypatch(process, 'hrtime', function (original, start) {
-        if (start) return [ 0, 25 ];
-        return [ 123, 456 ];
-      });
-
-      let file = new File('index.txt');
-      file.time('test');
-      assert.deepEqual(file.timeEnd('test'), [ 0, 25 ]);
-    });
-
-    it('should save the elapsed time in timing', function () {
-      monkeypatch(process, 'hrtime', function (original, start) {
-        if (start) return [ 0, 25 ];
-        return [ 123, 456 ];
-      });
-
-      let file = new File('index.txt');
-      file.time('test');
-      file.timeEnd('test');
-      assert.deepEqual(file.timing.get('test'), [ 0, 25 ]);
-    });
-
-    it('should overwrite the elapsed time when called multiple times', function () {
-      let x = 0;
-      let difftimes = [ [ 0, 25 ], [ 1, 50 ] ];
-      monkeypatch(process, 'hrtime', function (original, start) {
-        if (start) return difftimes[x++];
-        return [ 123, 456 ];
-      });
-
-      let file = new File('index.txt');
-      file.time('test');
-      file.timeEnd('test');
-      file.timeEnd('test');
-      assert.deepEqual(file.timing.get('test'), difftimes[1]);
-    });
-  });
-
   describe('#clone(tree)', function () {
     it('should create a new copy of the file', function () {
       let tree1 = new Tree();
@@ -284,54 +205,6 @@ describe('File()', function () {
       let a2 = a1.clone(tree2);
 
       assert.strictEqual(a2.tree, tree2);
-    });
-
-    it('should create new timing maps', function () {
-      let x = 0;
-      let y = 1;
-      monkeypatch(process, 'hrtime', function (original, start) {
-        if (start) return [ 1 * x++, 25 * y++ ];
-        return [ x, y * 1000 ];
-      });
-
-      let tree1 = new Tree();
-      let a1 = tree1.addFile('a');
-      a1.time('test');
-      a1.timeEnd('test');
-      let tree2 = new Tree();
-      let a2 = a1.clone(tree2);
-
-      assert.notStrictEqual(a2.timers, a1.timers);
-      assert.notStrictEqual(a2.timing, a1.timing);
-
-      assert.strictEqual(a2.timers.size, 0);
-      assert.strictEqual(a2.timing.size, 0);
-
-      process.hrtime.unpatch();
-    });
-
-    it('should clone the timing maps', function () {
-      let x = 0;
-      let y = 1;
-      monkeypatch(process, 'hrtime', function (original, start) {
-        if (start) return [ 1 * x++, 25 * y++ ];
-        return [ x, y * 1000 ];
-      });
-
-      let tree1 = new Tree();
-      let a1 = tree1.addFile('a');
-      a1.time('test');
-      a1.timeEnd('test');
-      let tree2 = new Tree();
-      let a2 = a1.clone(tree2, true);
-
-      assert.notStrictEqual(a2.timers, a1.timers);
-      assert.notStrictEqual(a2.timing, a1.timing);
-
-      assert.deepEqual(a2.timers.get('test'), [ 0, 1000 ]);
-      assert.deepEqual(a2.timing.get('test'), [ 0, 25 ]);
-
-      process.hrtime.unpatch();
     });
   });
 });
