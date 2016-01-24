@@ -1,4 +1,9 @@
 
+0.8.0 / 2016-01-23
+==================
+
+  * removing timers, that will be moved to a build tracking object
+
 0.7.1 / 2016-01-18
 ==================
 
