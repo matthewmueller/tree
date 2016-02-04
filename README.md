@@ -230,6 +230,18 @@ Short-hand for `tree.removeDependency(file.path, child)`.
 
 Short-hand for `tree.dependenciesOf(file.path, options)`.
 
+### File#hasDependant(parent)
+
+Short-hand for `tree.hasDependant(file.path, parent)`.
+
+### File#addDependant(parent)
+
+Short-hand for `tree.addDependency(file.path, parent)`.
+
+### File#removeDependant(parent)
+
+Short-hand for `tree.removeDependant(file.path, parent)`.
+
 ### File#dependants([options])
 
 Short-hand for `tree.dependantsOf(file.path, options)`.

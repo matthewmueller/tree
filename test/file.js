@@ -110,6 +110,53 @@ describe('File()', function () {
     });
   });
 
+  describe('#hasDependant(parent)', function () {
+    // a <- b
+    let tree = new Tree();
+    tree.addFile('a');
+    let b = tree.addFile('b');
+    tree.addDependant('b', 'a');
+
+    it('should return true file has the given child dependency', function () {
+      assert.isTrue(b.hasDependant('a'));
+    });
+
+    it('should return false if the file does not have the given child dependency', function () {
+      assert.isFalse(b.hasDependant('c'));
+    });
+  });
+
+  describe('#addDependant(parent)', function () {
+    it('should add the parent as a new dependant', function () {
+      // a <- b
+      let tree = new Tree();
+      let b = tree.addFile('b');
+      b.addDependant('a');
+
+      assert.isTrue(tree.hasFile('a'));
+    });
+
+    it('should return the newly added dependant file', function () {
+      let tree = new Tree();
+      let b = tree.addFile('b');
+      let a = b.addDependant('a');
+
+      assert.strictEqual(a, tree.getFile('a'));
+    });
+  });
+
+  describe('#removeDependant(parent)', function () {
+    it('should remove the parent as a dependant', function () {
+      // a <- b
+      let tree = new Tree();
+      let b = tree.addFile('b');
+      b.addDependant('a');
+      b.removeDependant('a');
+
+      assert.isFalse(tree.hasDependant('b', 'a'));
+    });
+  });
+
   describe('#dependants([options])', function () {
     // a -> b -> c -> d
     let tree = new Tree();
