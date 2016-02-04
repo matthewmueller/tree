@@ -95,18 +95,17 @@ exists in the tree.
 
 ### Tree#addDependency(parent, child)
 
-Adds a new dependency relationship to the graph setting `parent` as depending on `child`. If
-`child` is not already part of the tree, it will be added. (however, if `parent` is not in the tree,
-that is assumed to be an error) This will return the `File` instance for the `child` file.
+Adds a new dependency relationship to the graph setting `parent` as depending on `child`.
+
+If `child` is not already part of the tree, it will be added. However, if `parent` is not in the
+tree, that is assumed to be an error.
+
+This will return the `File` instance for the `child` file.
 
 ### Tree#removeDependency(parent, child)
 
 Removes the specified dependency relationship, basically saying that `parent` no longer depends on
-`child`)
-
-**NOTE:** If no other files depend on `child`, it will be removed from the tree. This allows
-plugins to only concern themselves with the relationships they are aware of, leaving the overall
-tree management to mako.
+`child`.
 
 ### Tree#dependenciesOf(file, [options])
 
@@ -116,6 +115,25 @@ By default, it will only return the direct descendants, but setting `options.rec
 a flat list of all the files **down** the entire dependency chain.
 
 If `options.objects` is set, the returned list will be `File` objects.
+
+### Tree#hasDependant(child, parent)
+
+Returns a `Boolean` reflecting if the dependency relationship between `child` and `parent` already
+exists in the tree.
+
+### Tree#addDependant(child, parent)
+
+Adds a new dependency relationship to the graph setting `child` as depended on by `parent`.
+
+If `parent` is not already part of the tree, it will be added. However, if `child` is not in the
+tree, that is assumed to be an error.
+
+This will return the `File` instance for the `parent` file.
+
+### Tree#removeDependant(child, parent)
+
+Removes the specified dependency relationship, basically saying that `child` no longer is depended
+on by `parent`.
 
 ### Tree#dependantsOf(file, [options])
 

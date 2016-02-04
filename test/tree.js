@@ -341,6 +341,104 @@ describe('Tree()', function () {
     });
   });
 
+  describe('#hasDependant(child, parent)', function () {
+    // a <- b
+    let tree = new Tree();
+    tree.addFile('a');
+    tree.addFile('b');
+    tree.addDependant('b', 'a');
+
+    it('should return false for a missing dependency', function () {
+      assert.isFalse(tree.hasDependant('b', 'z'));
+    });
+
+    it('should return true for an existing dependency', function () {
+      assert.isTrue(tree.hasDependant('b', 'a'));
+    });
+  });
+
+  describe('#addDependant(child, parent)', function () {
+    it('should create an edge between the child and parent', function () {
+      // a <- b
+      let tree = new Tree();
+      tree.addFile('a');
+      tree.addFile('b');
+      tree.addDependant('b', 'a');
+
+      assert.isTrue(tree.hasDependant('b', 'a'));
+    });
+
+    it('should throw if the parent was not already defined', function () {
+      let tree = new Tree();
+
+      assert.throws(function () {
+        tree.addDependant('b', 'a');
+      });
+    });
+
+    it('should automatically create the parent if not previously defined', function () {
+      let tree = new Tree();
+      tree.addFile('b');
+      tree.addDependant('b', 'a');
+
+      assert.isTrue(tree.hasFile('a'));
+    });
+
+    it('should return the new parent object', function () {
+      let tree = new Tree();
+      tree.addFile('b');
+      let child = tree.addDependant('b', 'a');
+
+      assert.strictEqual(tree.getFile('a'), child);
+    });
+
+    it('should not clobber the child object', function () {
+      // a <- b
+      let tree = new Tree();
+      tree.addFile('b');
+      let file1 = tree.addFile('a');
+      let file2 = tree.addDependant('b', 'a');
+
+      assert.strictEqual(file1, file2);
+    });
+  });
+
+  describe('#removeDependant(child, parent)', function () {
+    it('should remove the edge from the graph', function () {
+      // a <- b
+      let tree = new Tree();
+      tree.addFile('a');
+      tree.addFile('b');
+      tree.addDependant('b', 'a');
+
+      // a
+      tree.removeDependant('b', 'a');
+
+      assert.isFalse(tree.hasDependant('b', 'a'));
+    });
+  });
+
+  describe('#removeDependants(child)', function () {
+    it('should remove the link between child and all parents', function () {
+      // a <- c
+      // b <-
+      let tree = new Tree();
+      tree.addFile('a', true);
+      tree.addFile('b', true);
+      tree.addFile('c');
+      tree.addDependant('c', 'a');
+      tree.addDependant('c', 'b');
+
+      tree.removeDependants('c');
+
+      assert.isTrue(tree.hasFile('a'));
+      assert.isTrue(tree.hasFile('b'));
+      assert.isTrue(tree.hasFile('c'));
+      assert.isFalse(tree.hasDependant('c', 'a'));
+      assert.isFalse(tree.hasDependant('c', 'b'));
+    });
+  });
+
   describe('#dependantsOf(node, [options])', function () {
     // a <- b <- c <- d
     let tree = new Tree();
