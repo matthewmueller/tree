@@ -1,4 +1,9 @@
 
+0.9.0 / 2016-02-03
+==================
+
+  * adding dependant methods (the companions to the dependency methods)
+
 0.8.2 / 2016-01-28
 ==================
 
