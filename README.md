@@ -165,6 +165,17 @@ file marked as an entry.
 If `entries` is passed, (must be an `Array`) then any files that cannot reach _those_ files will
 be removed from the graph. (essentially overrides the internal list of entries)
 
+### Tree#toString([space])
+
+Serializes the tree into a JSON string, which can be written to disk (and then read back) to help
+reduce the amount of duplicate work between different runs of mako.
+
+The `space` parameter is there if you want to "pretty-print" the JSON output.
+
+### Tree.fromString(input)
+
+Unserializes a JSON string into a `Tree` instance.
+
 ### File(location, tree, [entry]) *(constructor)*
 
 Each instance represents a file in the overall build. The `location` is an absolute path, `tree`
