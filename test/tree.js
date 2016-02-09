@@ -594,4 +594,62 @@ describe('Tree()', function () {
       });
     });
   });
+
+  describe('#toJSON()', function () {
+    it('should return a list of vertices and edges for reconstructing the graph', function () {
+      // a <- b
+      let tree = new Tree();
+      let a = tree.addFile('a', true);
+      let b = tree.addFile('b');
+      tree.addDependency('a', 'b');
+
+      assert.deepEqual(tree.toJSON(), {
+        vertices: [
+          [ 'a', a.toString() ],
+          [ 'b', b.toString() ]
+        ],
+        edges: [
+          [ 'b', 'a' ]
+        ]
+      });
+    });
+  });
+
+  describe('#toString([space])', function () {
+    it('should completely stringify to JSON', function () {
+      // a <- b
+      let tree = new Tree();
+      let a = tree.addFile('a', true);
+      let b = tree.addFile('b');
+      tree.addDependency('a', 'b');
+
+      assert.strictEqual(tree.toString(), JSON.stringify({
+        vertices: [
+          [ 'a', a.toString() ],
+          [ 'b', b.toString() ]
+        ],
+        edges: [
+          [ 'b', 'a' ]
+        ]
+      }));
+    });
+  });
+
+  describe('.fromString()', function () {
+    it('should parse a JSON string into a tree instance', function () {
+      // a <- b
+      let tree = new Tree();
+      tree.addFile('a', true);
+      tree.addFile('b');
+      tree.addDependency('a', 'b');
+
+      let actual = Tree.fromString(tree.toString());
+      assert.instanceOf(actual, Tree);
+      assert.isTrue(actual.graph.equals(tree.graph, eqV, () => true));
+
+      function eqV(a, b) {
+        return a.path === b.path;
+      }
+    });
+  });
 });

@@ -254,4 +254,93 @@ describe('File()', function () {
       assert.strictEqual(a2.tree, tree2);
     });
   });
+
+  describe('#toJSON()', function () {
+    it('should return a cloned object', function () {
+      let tree = new Tree();
+      let a = tree.addFile('a.txt', true);
+      assert.notStrictEqual(a.toJSON(), a);
+    });
+
+    it('should preserve internal properties', function () {
+      let tree = new Tree();
+      let a = tree.addFile('a.txt', true);
+      a.contents = 'hello world';
+      let actual = a.toJSON();
+      assert.strictEqual(actual.path, 'a.txt');
+      assert.strictEqual(actual.type, 'txt');
+      assert.isTrue(actual.entry);
+      assert.isFalse(actual.analyzing);
+      assert.isFalse(actual.analyzed);
+    });
+
+    it('should preserve custom properties', function () {
+      let tree = new Tree();
+      let a = tree.addFile('a.txt', true);
+      a.contents = 'hello world';
+      let actual = a.toJSON();
+      assert.strictEqual(actual.contents, 'hello world');
+    });
+
+    it('should strip out the tree property', function () {
+      let tree = new Tree();
+      let a = tree.addFile('a.txt', true);
+      assert.isNull(a.toJSON().tree);
+    });
+  });
+
+  describe('#toString([space])', function () {
+    it('should completely stringify to JSON', function () {
+      let file = new File('a.txt', null, true);
+      assert.deepEqual(JSON.parse(file.toString()), {
+        path: 'a.txt',
+        type: 'txt',
+        entry: true,
+        analyzing: false,
+        analyzed: false,
+        tree: null
+      });
+    });
+  });
+
+  describe('.fromString(input, tree)', function () {
+    it('should parse a JSON string into a file instance', function () {
+      let file = new File('a.txt', null, true);
+
+      let actual = File.fromString(file.toString());
+      assert.instanceOf(actual, File);
+      assert.strictEqual(actual.path, 'a.txt');
+      assert.strictEqual(actual.type, 'txt');
+      assert.isTrue(actual.entry);
+      assert.isFalse(actual.analyzing);
+      assert.isFalse(actual.analyzed);
+    });
+
+    it('should properly handle date objects', function () {
+      let now = new Date();
+      let file = new File('a.txt', null, true);
+      file.modified = now;
+
+      let actual = File.fromString(file.toString());
+      assert.instanceOf(actual.modified, Date);
+      assert.strictEqual(actual.modified.getTime(), now.getTime());
+    });
+
+    it('should properly handle buffer objects', function () {
+      let file = new File('a.txt', null, true);
+      file.contents = new Buffer('hello world');
+
+      let actual = File.fromString(file.toString());
+      assert.isTrue(Buffer.isBuffer(actual.contents));
+      assert.strictEqual(actual.contents.toString(), 'hello world');
+    });
+
+    it('should set the tree property', function () {
+      let tree = new Tree();
+      let file = tree.addFile('a.txt', true);
+
+      let actual = File.fromString(file.toString(), tree);
+      assert.strictEqual(actual.tree, tree);
+    });
+  });
 });
