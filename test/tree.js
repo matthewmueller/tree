@@ -122,16 +122,17 @@ describe('Tree()', function () {
       assert.isFalse(tree.hasFile('a'));
     });
 
-    it('should fail if there are still dependencies defined', function () {
+    it('should remove the vertex and cleanup all connected edges', function () {
       // a <- b
       let tree = new Tree();
       tree.addFile('a');
       tree.addFile('b');
       tree.addDependency('a', 'b');
 
-      assert.throws(function () {
-        tree.removeFile('a');
-      });
+      tree.removeFile('a');
+      assert.isUndefined(tree.getFile('a'));
+      assert.isFalse(tree.hasDependency('a', 'b'));
+      assert.isFalse(tree.hasDependant('b', 'a'));
     });
   });
 
