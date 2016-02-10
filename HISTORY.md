@@ -1,4 +1,9 @@
 
+0.10.1 / 2016-02-09
+===================
+
+  * adding ability to forcibly remove a file from the tree
+
 0.10.0 / 2016-02-08
 ===================
 
