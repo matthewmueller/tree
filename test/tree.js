@@ -113,7 +113,7 @@ describe('Tree()', function () {
     });
   });
 
-  describe('#removeFile(location)', function () {
+  describe('#removeFile(location, [options])', function () {
     it('should remove the file from the tree', function () {
       let tree = new Tree();
       tree.addFile('a');
@@ -131,6 +131,20 @@ describe('Tree()', function () {
 
       assert.throws(function () {
         tree.removeFile('a');
+      });
+    });
+
+    context('with options', function () {
+      context('.force', function () {
+        // a <- b
+        let tree = new Tree();
+        tree.addFile('a');
+        tree.addFile('b');
+        tree.addDependency('a', 'b');
+
+        tree.removeFile('a', { force: true });
+        assert.isFalse(tree.hasFile('a'));
+        assert.isTrue(tree.hasFile('b'));
       });
     });
   });
@@ -555,7 +569,7 @@ describe('Tree()', function () {
       assert.deepEqual(tree.getFiles({ topological: true }), [ 'c', 'b', 'a' ]);
     });
 
-    it('should not properly handle a complex case', function () {
+    it('should properly handle a complex case', function () {
       // a* <- b <- c <- d
       // e  <- f <-
       let tree = new Tree();
@@ -635,7 +649,7 @@ describe('Tree()', function () {
     });
   });
 
-  describe('.fromString()', function () {
+  describe('.fromString(input)', function () {
     it('should parse a JSON string into a tree instance', function () {
       // a <- b
       let tree = new Tree();
