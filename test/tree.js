@@ -609,6 +609,61 @@ describe('Tree()', function () {
     });
   });
 
+  describe('#removeCycles()', function () {
+    it('should remove shallow cycles', function () {
+      // a <- b <- c*
+      //   <- c <- b*
+      let tree = new Tree();
+      tree.addFile('a', true);
+      tree.addFile('b');
+      tree.addFile('c');
+      tree.addDependency('a', 'b');
+      tree.addDependency('a', 'c');
+      tree.addDependency('b', 'c');
+      tree.addDependency('c', 'b');
+
+      tree.removeCycles();
+
+      assert.deepEqual(tree.getFiles({ topological: true }), [ 'c', 'b', 'a' ]);
+    });
+
+    it('should remove cycles found deeper in the graph', function () {
+      // a <- b <- c <- d*
+      //        <- d <- c*
+      let tree = new Tree();
+      tree.addFile('a', true);
+      tree.addFile('b');
+      tree.addFile('c');
+      tree.addFile('d');
+      tree.addDependency('a', 'b');
+      tree.addDependency('b', 'c');
+      tree.addDependency('b', 'd');
+      tree.addDependency('c', 'd');
+      tree.addDependency('d', 'c');
+
+      tree.removeCycles();
+
+      assert.deepEqual(tree.getFiles({ topological: true }), [ 'd', 'c', 'b', 'a' ]);
+    });
+
+    it('should remove large cycles in the graph', function () {
+      // a <- b <- c <- d <- b*
+      let tree = new Tree();
+      tree.addFile('a', true);
+      tree.addFile('b');
+      tree.addFile('c');
+      tree.addFile('d');
+      tree.addDependency('a', 'b');
+      tree.addDependency('b', 'c');
+      tree.addDependency('c', 'd');
+      tree.addDependency('d', 'b');
+
+      tree.removeCycles();
+
+      assert.deepEqual(tree.getFiles({ topological: true }), [ 'd', 'c', 'b', 'a' ]);
+    });
+  });
+
   describe('#toJSON()', function () {
     it('should return a list of vertices and edges for reconstructing the graph', function () {
       // a <- b
