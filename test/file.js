@@ -285,29 +285,15 @@ describe('File()', function () {
     it('should strip out the tree property', function () {
       let tree = new Tree();
       let a = tree.addFile('a.txt', true);
-      assert.isNull(a.toJSON().tree);
+      assert.isUndefined(a.toJSON().tree);
     });
   });
 
-  describe('#toString([space])', function () {
-    it('should completely stringify to JSON', function () {
-      let file = new File('a.txt', null, true);
-      assert.deepEqual(JSON.parse(file.toString()), {
-        path: 'a.txt',
-        type: 'txt',
-        entry: true,
-        analyzing: false,
-        analyzed: false,
-        tree: null
-      });
-    });
-  });
-
-  describe('.fromString(input, tree)', function () {
+  describe('.fromObject(input, tree)', function () {
     it('should parse a JSON string into a file instance', function () {
       let file = new File('a.txt', null, true);
 
-      let actual = File.fromString(file.toString());
+      let actual = File.fromObject(file.toJSON());
       assert.instanceOf(actual, File);
       assert.strictEqual(actual.path, 'a.txt');
       assert.strictEqual(actual.type, 'txt');
@@ -321,7 +307,7 @@ describe('File()', function () {
       let file = new File('a.txt', null, true);
       file.modified = now;
 
-      let actual = File.fromString(file.toString());
+      let actual = File.fromObject(file.toJSON());
       assert.instanceOf(actual.modified, Date);
       assert.strictEqual(actual.modified.getTime(), now.getTime());
     });
@@ -330,7 +316,7 @@ describe('File()', function () {
       let file = new File('a.txt', null, true);
       file.contents = new Buffer('hello world');
 
-      let actual = File.fromString(file.toString());
+      let actual = File.fromObject(file.toJSON());
       assert.isTrue(Buffer.isBuffer(actual.contents));
       assert.strictEqual(actual.contents.toString(), 'hello world');
     });
@@ -339,7 +325,7 @@ describe('File()', function () {
       let tree = new Tree();
       let file = tree.addFile('a.txt', true);
 
-      let actual = File.fromString(file.toString(), tree);
+      let actual = File.fromObject(file.toJSON(), tree);
       assert.strictEqual(actual.tree, tree);
     });
   });

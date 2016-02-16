@@ -673,11 +673,8 @@ describe('Tree()', function () {
       tree.addDependency('a', 'b');
 
       assert.deepEqual(tree.toJSON(), {
-        vertices: [
-          [ 'a', a.toString() ],
-          [ 'b', b.toString() ]
-        ],
-        edges: [
+        files: [ a, b ],
+        dependencies: [
           [ 'b', 'a' ]
         ]
       });
@@ -693,11 +690,8 @@ describe('Tree()', function () {
       tree.addDependency('a', 'b');
 
       assert.strictEqual(tree.toString(), JSON.stringify({
-        vertices: [
-          [ 'a', a.toString() ],
-          [ 'b', b.toString() ]
-        ],
-        edges: [
+        files: [ a, b ],
+        dependencies: [
           [ 'b', 'a' ]
         ]
       }));
