@@ -3,6 +3,10 @@
   "version": "0.11.3",
   "main": "./lib/tree",
   "description": "The build tree structure used internally by mako",
+  "keywords": [
+    "mako-util",
+    "tree"
+  ],
   "repository": "makojs/tree",
   "dependencies": {
     "babel-polyfill-safe": "^1.0.1",
