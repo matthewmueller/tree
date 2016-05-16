@@ -6,6 +6,7 @@
 [![npm dependencies](https://img.shields.io/david/makojs/tree.svg)](https://david-dm.org/makojs/tree)
 [![npm dev dependencies](https://img.shields.io/david/dev/makojs/tree.svg)](https://david-dm.org/makojs/tree#info=devDependencies)
 [![build status](https://img.shields.io/travis/makojs/tree.svg)](https://travis-ci.org/makojs/tree)
+[![coverage](https://img.shields.io/coveralls/makojs/tree.svg)](https://coveralls.io/github/makojs/tree)
 
 ## Overview
 
