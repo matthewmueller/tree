@@ -31,7 +31,7 @@
     "mocha": "^2.3.0"
   },
   "scripts": {
-    "lint": "eslint .",
+    "lint": "eslint --cache .",
     "pretest": "npm run lint",
     "test": "istanbul cover _mocha",
     "coveralls": "istanbul-coveralls"
