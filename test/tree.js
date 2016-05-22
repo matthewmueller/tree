@@ -2,6 +2,7 @@
 'use strict';
 
 let assert = require('chai').assert;
+let bufferEqual = require('buffer-equal');
 let File = require('../lib/file');
 let Tree = require('../lib/tree');
 
@@ -702,8 +703,12 @@ describe('Tree()', function () {
     it('should parse a JSON string into a tree instance', function () {
       // a <- b
       let tree = new Tree();
-      tree.addFile('a', true);
-      tree.addFile('b');
+      let a = tree.addFile('a', true);
+      a.contents = new Buffer('a');
+      a.modified = new Date();
+      let b = tree.addFile('b');
+      b.contents = new Buffer('b');
+      b.modified = new Date();
       tree.addDependency('a', 'b');
 
       let actual = Tree.fromString(tree.toString());
@@ -711,8 +716,14 @@ describe('Tree()', function () {
       assert.isTrue(actual.graph.equals(tree.graph, eqV, () => true));
 
       function eqV(a, b) {
-        return a.path === b.path;
+        return a.path === b.path && bufferEqual(a.contents, b.contents) && dateEqual(a.modified, b.modified);
       }
     });
   });
 });
+
+function dateEqual(a, b) {
+  assert.instanceOf(a, Date);
+  assert.instanceOf(b, Date);
+  return a.getTime() === b.getTime();
+}

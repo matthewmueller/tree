@@ -21,6 +21,7 @@
     "@dominicbarnes/eslint-config": "^1.0.0",
     "@dominicbarnes/eslint-config-node": "^1.0.1",
     "@dominicbarnes/eslint-config-test": "^1.0.0",
+    "buffer-equal": "^1.0.0",
     "chai": "^3.2.0",
     "chai-as-promised": "^5.1.0",
     "eslint": "^2.1.0",
