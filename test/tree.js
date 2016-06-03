@@ -3,7 +3,6 @@
 
 let assert = require('chai').assert;
 let bufferEqual = require('buffer-equal');
-let File = require('../lib/file');
 let Tree = require('../lib/tree');
 
 describe('Tree()', function () {
@@ -16,483 +15,424 @@ describe('Tree()', function () {
     assert.equal(tree.size(), 0);
   });
 
-  describe('#hasFile(location)', function () {
+  describe('#hasFile(id)', function () {
     let tree = new Tree();
-    tree.addFile('a');
+    let file = tree.addFile({ path: 'a.js' });
 
     it('should return false for a missing node', function () {
-      assert.isFalse(tree.hasFile('z'));
+      assert.isFalse(tree.hasFile('does-not-exist'));
     });
 
     it('should return true for an existing node', function () {
-      assert.isTrue(tree.hasFile('a'));
+      assert.isTrue(tree.hasFile(file));
+    });
+
+    it('should allow using a string id', function () {
+      assert.isTrue(tree.hasFile(file.id));
     });
   });
 
-  describe('#addFile(location, [entry])', function () {
-    it('should add a new vertex', function () {
+  describe('#addFile(params, [entry])', function () {
+    it('should add the file to the graph', function () {
       let tree = new Tree();
       tree.addFile('a');
-
-      assert.isTrue(tree.hasFile('a'));
-    });
-
-    it('should not overwrite the file object', function () {
-      let tree = new Tree();
-      let file1 = tree.addFile('a');
-      let file2 = tree.addFile('a');
-
-      assert.strictEqual(file1, file2);
+      assert.strictEqual(tree.size(), 1);
     });
 
     context('with entry', function () {
       it('should set the file as an entry', function () {
         let tree = new Tree();
         let a = tree.addFile('a', true);
-
         assert.isTrue(a.entry);
       });
 
       it('should leave the file as not an entry by default', function () {
         let tree = new Tree();
         let a = tree.addFile('a');
-
         assert.isFalse(a.entry);
       });
     });
   });
 
-  describe('#getFile(location)', function () {
+  describe('#getFile(file)', function () {
     let tree = new Tree();
-    tree.addFile('a');
+    let file = tree.addFile('index.html');
 
     it('should return a file instance', function () {
-      let file = tree.getFile('a');
-      assert.instanceOf(file, File);
-      assert.strictEqual(file.path, 'a');
+      assert.strictEqual(tree.getFile(file.id), file);
     });
 
-    it('should throw when the file does not exist', function () {
-      assert.isUndefined(tree.getFile('z'));
+    it('should return undefined when the file does not exist', function () {
+      assert.isUndefined(tree.getFile('does-not-exist'));
+    });
+  });
+
+  describe('#findFile(path)', function () {
+    let tree = new Tree();
+    let file = tree.addFile('/path/to/index.jade');
+    file.type = 'html'; // intentionally change extension to add to history
+
+    it('should return the file instance if the path matches', function () {
+      assert.strictEqual(file, tree.findFile('/path/to/index.html'));
+    });
+
+    it('should return the file instance if anything in the history matches', function () {
+      assert.strictEqual(file, tree.findFile('/path/to/index.jade'));
+    });
+
+    it('should return undefined when the file does not exist', function () {
+      assert.isUndefined(tree.findFile('does-not-exist'));
     });
   });
 
   describe('#getFiles([options])', function () {
-    // a <- b <- c <- d
-    //   <- e
+    // index.html <- index.js  <- shared.js
+    //            <- index.css <- shared.css
     let tree = new Tree();
-    tree.addFile('a');
-    tree.addFile('b');
-    tree.addFile('c');
-    tree.addFile('d');
-    tree.addFile('e');
-    tree.addDependency('a', 'b');
-    tree.addDependency('a', 'e');
-    tree.addDependency('b', 'c');
-    tree.addDependency('c', 'd');
+    let html = tree.addFile('index.html');
+    let js = tree.addFile('index.js');
+    let sharedJS = tree.addFile('shared.js');
+    let css = tree.addFile('index.css');
+    let sharedCSS = tree.addFile('shared.css');
+    tree.addDependency(html, js);
+    tree.addDependency(html, css);
+    tree.addDependency(js, sharedJS);
+    tree.addDependency(css, sharedCSS);
 
     it('should return a list of all the files in the tree', function () {
-      assert.deepEqual(tree.getFiles(), [ 'a', 'b', 'c', 'd', 'e' ]);
+      let files = tree.getFiles();
+      assert.lengthOf(files, tree.size());
+      assert.sameMembers(files, [ html, js, css, sharedJS, sharedCSS ]);
     });
 
     context('with options', function () {
       context('.topological', function () {
         it('should sort the results topologically', function () {
-          assert.deepEqual(tree.getFiles({ topological: true }), [ 'd', 'e', 'c', 'b', 'a' ]);
-        });
-      });
-
-      context('.objects', function () {
-        it('should return the file objects', function () {
-          tree.getFiles({ objects: true }).forEach(file => assert.instanceOf(file, File));
-        });
-
-        it('should even work with options.topological', function () {
-          tree.getFiles({ topological: true, objects: true }).forEach(file => assert.instanceOf(file, File));
+          assert.deepEqual(tree.getFiles({ topological: true }), [ sharedJS, sharedCSS, js, css, html ]);
         });
       });
     });
   });
 
-  describe('#removeFile(location, [options])', function () {
+  describe('#removeFile(file, [options])', function () {
     it('should remove the file from the tree', function () {
       let tree = new Tree();
-      tree.addFile('a');
-      tree.removeFile('a');
+      let file = tree.addFile('index.html');
 
-      assert.isFalse(tree.hasFile('a'));
+      tree.removeFile(file);
+      assert.isFalse(tree.hasFile(file));
     });
 
     it('should fail if there are still dependencies defined', function () {
-      // a <- b
+      // index.html <- index.js
       let tree = new Tree();
-      tree.addFile('a');
-      tree.addFile('b');
-      tree.addDependency('a', 'b');
+      let html = tree.addFile('index.html');
+      let js = tree.addFile('index.js');
+      tree.addDependency(html, js);
 
       assert.throws(function () {
-        tree.removeFile('a');
+        tree.removeFile(html);
       });
+    });
+
+    it('should support using a string id', function () {
+      let tree = new Tree();
+      let file = tree.addFile('index.html');
+
+      tree.removeFile(file.id);
+      assert.isFalse(tree.hasFile(file));
     });
 
     context('with options', function () {
       context('.force', function () {
-        // a <- b
+        // index.html <- index.js
         let tree = new Tree();
-        tree.addFile('a');
-        tree.addFile('b');
-        tree.addDependency('a', 'b');
+        let html = tree.addFile('index.html');
+        let js = tree.addFile('index.js');
+        tree.addDependency(html, js);
 
-        tree.removeFile('a', { force: true });
-        assert.isFalse(tree.hasFile('a'));
-        assert.isTrue(tree.hasFile('b'));
+        tree.removeFile(html, { force: true });
+        assert.isFalse(tree.hasFile(html));
+        assert.isTrue(tree.hasFile(js));
       });
     });
   });
 
   describe('#getEntries([options])', function () {
-    it('should return an empty list', function () {
-      let tree = new Tree();
-      assert.deepEqual(tree.getEntries(), []);
-    });
-
-    it('should return only the top-level entry', function () {
-      // a <- b <- c
-      //   <- d
-      let tree = new Tree();
-      tree.addFile('a', true);
-      tree.addFile('b');
-      tree.addFile('c');
-      tree.addFile('d');
-      tree.addDependency('a', 'b');
-      tree.addDependency('a', 'd');
-      tree.addDependency('b', 'c');
-
-      assert.deepEqual(tree.getEntries(), [ 'a' ]);
-    });
+    // index.js  <- shared.js
+    // index.css <- shared.css
+    let tree = new Tree();
+    let js = tree.addFile('index.js', true);
+    let sharedJS = tree.addFile('shared.js');
+    let css = tree.addFile('index.css', true);
+    let sharedCSS = tree.addFile('shared.css');
+    tree.addDependency(js, sharedJS);
+    tree.addDependency(css, sharedCSS);
 
     it('should return all the top-level entries', function () {
-      // a <- b
-      // c <- d <- e
-      let tree = new Tree();
-      tree.addFile('a', true);
-      tree.addFile('b');
-      tree.addFile('c', true);
-      tree.addFile('d');
-      tree.addFile('e');
-      tree.addDependency('a', 'b');
-      tree.addDependency('c', 'd');
-      tree.addDependency('d', 'e');
-
-      assert.deepEqual(tree.getEntries(), [ 'a', 'c' ]);
+      assert.deepEqual(tree.getEntries(), [ js, css ]);
     });
 
     context('with options', function () {
-      // a <- b
-      // c <- d <- e
-      let tree = new Tree();
-      tree.addFile('a', true);
-      tree.addFile('b');
-      tree.addFile('c', true);
-      tree.addFile('d');
-      tree.addFile('e');
-      tree.addDependency('a', 'b');
-      tree.addDependency('c', 'd');
-      tree.addDependency('d', 'e');
-
       context('.from', function () {
-        it('should only return all the linked entries', function () {
-          assert.deepEqual(tree.getEntries({ from: 'e' }), [ 'c' ]);
+        it('should only the linked entries', function () {
+          assert.deepEqual(tree.getEntries({ from: sharedJS }), [ js ]);
+        });
+
+        it('should support a string id', function () {
+          assert.deepEqual(tree.getEntries({ from: sharedJS.id }), [ js ]);
         });
       });
-
-      context('.objects', function () {
-        it('should return the file objects', function () {
-          tree.getEntries({ objects: true }).forEach(file => assert.instanceOf(file, File));
-        });
-      });
-    });
-  });
-
-  describe('#isEntry(location)', function () {
-    // a <- b
-    let tree = new Tree();
-    tree.addFile('a', true);
-    tree.addFile('b');
-    tree.addDependency('a', 'b');
-
-    it('should return true when the file is flagged as an entry', function () {
-      assert.isTrue(tree.isEntry('a'));
-    });
-
-    it('should return false when the file is not flagged as an entry', function () {
-      assert.isFalse(tree.isEntry('b'));
     });
   });
 
   describe('#hasDependency(parent, child)', function () {
-    // a <- b
+    // index.html <- index.js
     let tree = new Tree();
-    tree.addFile('a');
-    tree.addFile('b');
-    tree.addDependency('a', 'b');
+    let html = tree.addFile('index.html');
+    let js = tree.addFile('index.js');
+    tree.addDependency(html, js);
 
     it('should return false for a missing dependency', function () {
-      assert.isFalse(tree.hasDependency('a', 'z'));
+      assert.isFalse(tree.hasDependency(html, 'does-not-exist'));
+    });
+
+    it('should return false when the dependency link is reversed', function () {
+      assert.isFalse(tree.hasDependency(js, html));
     });
 
     it('should return true for an existing dependency', function () {
-      assert.isTrue(tree.hasDependency('a', 'b'));
+      assert.isTrue(tree.hasDependency(html, js));
+    });
+
+    it('should allow using a string id', function () {
+      assert.isTrue(tree.hasDependency(html.id, js.id));
     });
   });
 
   describe('#addDependency(parent, child)', function () {
-    it('should create an edge between the parent and child', function () {
+    it('should set child as a dependency of parent', function () {
+      // index.html <- index.js
       let tree = new Tree();
-      tree.addFile('a');
-      tree.addFile('b');
-      tree.addDependency('a', 'b');
+      let html = tree.addFile('index.html');
+      let js = tree.addFile('index.js');
 
-      assert.isTrue(tree.hasDependency('a', 'b'));
+      tree.addDependency(html, js);
+      assert.isTrue(tree.hasDependency(html, js));
     });
 
     it('should throw if the parent was not already defined', function () {
       let tree = new Tree();
+      let js = tree.addFile('index.js');
 
       assert.throws(function () {
-        tree.addDependency('a', 'b');
+        tree.addDependency('does-not-exist', js);
       });
     });
 
-    it('should automatically create the child if not previously defined', function () {
+    it('should throw if the child was not already defined', function () {
       let tree = new Tree();
-      tree.addFile('a');
-      tree.addDependency('a', 'b');
+      let html = tree.addFile('index.html');
 
-      assert.isTrue(tree.hasFile('b'));
+      assert.throws(function () {
+        tree.addDependency(html, 'does-not-exist');
+      });
     });
 
-    it('should return the new child object', function () {
+    it('should allow using string ids', function () {
+      // index.html <- index.js
       let tree = new Tree();
-      tree.addFile('a');
-      let child = tree.addDependency('a', 'b');
+      let html = tree.addFile('index.html');
+      let js = tree.addFile('index.js');
+      tree.addDependency(html.id, js.id);
 
-      assert.strictEqual(tree.getFile('b'), child);
-    });
-
-    it('should not clobber the child object', function () {
-      let tree = new Tree();
-      tree.addFile('a');
-      let file1 = tree.addFile('b');
-      let file2 = tree.addDependency('a', 'b');
-
-      assert.strictEqual(file1, file2);
+      assert.isTrue(tree.hasDependency(html, js));
     });
   });
 
   describe('#removeDependency(parent, child)', function () {
     it('should remove the edge from the graph', function () {
-      // a <- b
+      // index.html <- index.js
       let tree = new Tree();
-      tree.addFile('a');
-      tree.addFile('b');
-      tree.addDependency('a', 'b');
+      let html = tree.addFile('index.html');
+      let js = tree.addFile('index.js');
+      tree.addDependency(html, js);
 
-      // a
-      tree.removeDependency('a', 'b');
+      tree.removeDependency(html, js);
+      assert.isFalse(tree.hasDependency(html, js));
+    });
 
-      assert.isFalse(tree.hasDependency('a', 'b'));
+    it('should allow using string ids', function () {
+      // index.html <- index.js
+      let tree = new Tree();
+      let html = tree.addFile('index.html');
+      let js = tree.addFile('index.js');
+      tree.addDependency(html, js);
+
+      tree.removeDependency(html.id, js.id);
+      assert.isFalse(tree.hasDependency(html, js));
     });
   });
 
-  describe('#removeDependencies(parent)', function () {
-    it('should remove the link between parent and all children', function () {
-      // a <- b
-      //   <- c
-      let tree = new Tree();
-      tree.addFile('a', true);
-      tree.addFile('b');
-      tree.addFile('c');
-      tree.addDependency('a', 'b');
-      tree.addDependency('a', 'c');
-
-      tree.removeDependencies('a');
-
-      assert.isTrue(tree.hasFile('a'));
-      assert.isTrue(tree.hasFile('b'));
-      assert.isTrue(tree.hasFile('c'));
-      assert.isFalse(tree.hasDependency('a', 'b'));
-      assert.isFalse(tree.hasDependency('a', 'c'));
-    });
-  });
-
-  describe('#dependenciesOf(node, [options])', function () {
-    // a <- b <- c <- d
+  describe('#dependenciesOf(file, [options])', function () {
+    // index.js <- a.js <- b.js <- c.js
     let tree = new Tree();
-    tree.addFile('a');
-    tree.addFile('b');
-    tree.addFile('c');
-    tree.addFile('d');
-    tree.addDependency('a', 'b');
-    tree.addDependency('b', 'c');
-    tree.addDependency('c', 'd');
+    let js = tree.addFile('index.js');
+    let a = tree.addFile('a.js');
+    let b = tree.addFile('b.js');
+    let c = tree.addFile('c.js');
+    tree.addDependency(js, a);
+    tree.addDependency(a, b);
+    tree.addDependency(b, c);
 
     it('should return the direct dependencies of node', function () {
-      assert.deepEqual(tree.dependenciesOf('a'), [ 'b' ]);
+      assert.deepEqual(tree.dependenciesOf(js), [ a ]);
+    });
+
+    it('should allow using a string id', function () {
+      assert.deepEqual(tree.dependenciesOf(js.id), [ a ]);
     });
 
     context('with options', function () {
       context('.recursive', function () {
         it('should all the dependencies of node', function () {
-          assert.deepEqual(tree.dependenciesOf('a', { recursive: true }), [ 'b', 'c', 'd' ]);
+          assert.deepEqual(tree.dependenciesOf(js, { recursive: true }), [ a, b, c ]);
         });
-      });
 
-      context('.objects', function () {
-        it('should return the file objects', function () {
-          tree.dependenciesOf('a', { objects: true }).forEach(file => assert.instanceOf(file, File));
+        it('should allow using a string id', function () {
+          assert.deepEqual(tree.dependenciesOf(js.id, { recursive: true }), [ a, b, c ]);
         });
       });
     });
   });
 
   describe('#hasDependant(child, parent)', function () {
-    // a <- b
+    // a.js <- b.js
     let tree = new Tree();
-    tree.addFile('a');
-    tree.addFile('b');
-    tree.addDependant('b', 'a');
+    let a = tree.addFile('a.js');
+    let b = tree.addFile('b.js');
+    tree.addDependency(a, b);
 
     it('should return false for a missing dependency', function () {
-      assert.isFalse(tree.hasDependant('b', 'z'));
+      assert.isFalse(tree.hasDependant(b, 'does-not-exist'));
+    });
+
+    it('should return false for a reversed dependency', function () {
+      assert.isFalse(tree.hasDependant(a, b));
     });
 
     it('should return true for an existing dependency', function () {
-      assert.isTrue(tree.hasDependant('b', 'a'));
+      assert.isTrue(tree.hasDependant(b, a));
+    });
+
+    it('should allow using string ids', function () {
+      assert.isTrue(tree.hasDependant(b.id, a.id));
     });
   });
 
   describe('#addDependant(child, parent)', function () {
     it('should create an edge between the child and parent', function () {
-      // a <- b
+      // a.js <- b.js
       let tree = new Tree();
-      tree.addFile('a');
-      tree.addFile('b');
-      tree.addDependant('b', 'a');
+      let a = tree.addFile('a.js');
+      let b = tree.addFile('b.js');
 
-      assert.isTrue(tree.hasDependant('b', 'a'));
+      tree.addDependant(b, a);
+      assert.isTrue(tree.hasDependant(b, a));
     });
 
     it('should throw if the parent was not already defined', function () {
       let tree = new Tree();
+      let b = tree.addFile('b.js');
 
       assert.throws(function () {
-        tree.addDependant('b', 'a');
+        tree.addDependant(b, 'does-not-exist');
       });
     });
 
-    it('should automatically create the parent if not previously defined', function () {
+    it('should throw if the child was not already defined', function () {
       let tree = new Tree();
-      tree.addFile('b');
-      tree.addDependant('b', 'a');
+      let a = tree.addFile('a.js');
 
-      assert.isTrue(tree.hasFile('a'));
+      assert.throws(function () {
+        tree.addDependant('does-not-exist', a);
+      });
     });
 
-    it('should return the new parent object', function () {
+    it('should support using string ids', function () {
+      // a.js <- b.js
       let tree = new Tree();
-      tree.addFile('b');
-      let child = tree.addDependant('b', 'a');
+      let a = tree.addFile('a.js');
+      let b = tree.addFile('b.js');
 
-      assert.strictEqual(tree.getFile('a'), child);
-    });
-
-    it('should not clobber the child object', function () {
-      // a <- b
-      let tree = new Tree();
-      tree.addFile('b');
-      let file1 = tree.addFile('a');
-      let file2 = tree.addDependant('b', 'a');
-
-      assert.strictEqual(file1, file2);
+      tree.addDependant(b.id, a.id);
+      assert.isTrue(tree.hasDependant(b, a));
     });
   });
 
   describe('#removeDependant(child, parent)', function () {
     it('should remove the edge from the graph', function () {
-      // a <- b
+      // a.js <- b.js
       let tree = new Tree();
-      tree.addFile('a');
-      tree.addFile('b');
-      tree.addDependant('b', 'a');
+      let a = tree.addFile('a.js');
+      let b = tree.addFile('b.js');
+      tree.addDependant(b, a);
 
-      // a
-      tree.removeDependant('b', 'a');
+      tree.removeDependant(b, a);
+      assert.isFalse(tree.hasDependant(b, a));
+    });
 
-      assert.isFalse(tree.hasDependant('b', 'a'));
+    it('should allow using string ids', function () {
+      // a.js <- b.js
+      let tree = new Tree();
+      let a = tree.addFile('a.js');
+      let b = tree.addFile('b.js');
+      tree.addDependant(b, a);
+
+      tree.removeDependant(b.id, a.id);
+      assert.isFalse(tree.hasDependant(b, a));
     });
   });
 
-  describe('#removeDependants(child)', function () {
-    it('should remove the link between child and all parents', function () {
-      // a <- c
-      // b <-
-      let tree = new Tree();
-      tree.addFile('a', true);
-      tree.addFile('b', true);
-      tree.addFile('c');
-      tree.addDependant('c', 'a');
-      tree.addDependant('c', 'b');
-
-      tree.removeDependants('c');
-
-      assert.isTrue(tree.hasFile('a'));
-      assert.isTrue(tree.hasFile('b'));
-      assert.isTrue(tree.hasFile('c'));
-      assert.isFalse(tree.hasDependant('c', 'a'));
-      assert.isFalse(tree.hasDependant('c', 'b'));
-    });
-  });
-
-  describe('#dependantsOf(node, [options])', function () {
-    // a <- b <- c <- d
+  describe('#dependantsOf(file, [options])', function () {
+    // a.js <- b.js <- c.js
     let tree = new Tree();
-    tree.addFile('a');
-    tree.addFile('b');
-    tree.addFile('c');
-    tree.addFile('d');
-    tree.addDependency('a', 'b');
-    tree.addDependency('b', 'c');
-    tree.addDependency('c', 'd');
+    let a = tree.addFile('a.js');
+    let b = tree.addFile('b.js');
+    let c = tree.addFile('c.js');
+    tree.addDependency(a, b);
+    tree.addDependency(b, c);
 
-    it('should return the direct dependencies of node', function () {
-      assert.deepEqual(tree.dependantsOf('d'), [ 'c' ]);
+    it('should return the direct dependants of file', function () {
+      assert.deepEqual(tree.dependantsOf(c), [ b ]);
+    });
+
+    it('should support using a string id', function () {
+      assert.deepEqual(tree.dependantsOf(c.id), [ b ]);
     });
 
     context('with options', function () {
       context('.recursive', function () {
-        it('should all the dependencies of node', function () {
-          assert.deepEqual(tree.dependantsOf('d', { recursive: true }), [ 'c', 'b', 'a' ]);
+        it('should all the dependencies of file', function () {
+          assert.deepEqual(tree.dependantsOf(c, { recursive: true }), [ b, a ]);
         });
-      });
 
-      context('.objects', function () {
-        it('should return the file objects', function () {
-          tree.dependantsOf('d', { objects: true }).forEach(file => assert.instanceOf(file, File));
+        it('should support using a string id', function () {
+          assert.deepEqual(tree.dependantsOf(c.id, { recursive: true }), [ b, a ]);
         });
       });
     });
   });
 
   describe('#size()', function () {
-    // a <- b
-    //   <- c
+    // a.js <- b.js
+    //      <- c.js
     let tree = new Tree();
-    tree.addFile('a');
-    tree.addFile('b');
-    tree.addFile('c');
-    tree.addDependency('a', 'b');
-    tree.addDependency('a', 'c');
+    let a = tree.addFile('a.js');
+    let b = tree.addFile('b.js');
+    let c = tree.addFile('c.js');
+    tree.addDependency(a, b);
+    tree.addDependency(a, c);
 
     it('should return the number of files in the tree', function () {
       assert.strictEqual(tree.size(), 3);
@@ -500,14 +440,14 @@ describe('Tree()', function () {
   });
 
   describe('#clone()', function () {
-    // a <- b
-    //   <- c
+    // a.js <- b.js
+    //      <- c.js
     let tree = new Tree();
-    tree.addFile('a');
-    tree.addFile('b');
-    tree.addFile('c');
-    tree.addDependency('a', 'b');
-    tree.addDependency('a', 'c');
+    let a = tree.addFile('a.js');
+    let b = tree.addFile('b.js');
+    let c = tree.addFile('c.js');
+    tree.addDependency(a, b);
+    tree.addDependency(a, c);
 
     it('should make a clone of the original', function () {
       let clone = tree.clone();
@@ -524,71 +464,67 @@ describe('Tree()', function () {
       // a* <- b
       // c
       let tree = new Tree();
-      tree.addFile('a', true);
-      tree.addFile('b');
-      tree.addFile('c');
-      tree.addDependency('a', 'b');
+      let a = tree.addFile('a', true);
+      let b = tree.addFile('b');
+      let c = tree.addFile('c');
+      tree.addDependency(a, b);
 
       tree.prune();
-
       assert.strictEqual(tree.size(), 2);
-      assert.isFalse(tree.hasFile('c'));
+      assert.isFalse(tree.hasFile(c));
     });
 
     it('should recursively remove orphaned trees', function () {
       // a* <- b
       // c  <- d
       let tree = new Tree();
-      tree.addFile('a', true);
-      tree.addFile('b');
-      tree.addFile('c');
-      tree.addFile('d');
-      tree.addDependency('a', 'b');
-      tree.addDependency('c', 'd');
+      let a = tree.addFile('a', true);
+      let b = tree.addFile('b');
+      let c = tree.addFile('c');
+      let d = tree.addFile('d');
+      tree.addDependency(a, b);
+      tree.addDependency(c, d);
 
       tree.prune();
-
       assert.strictEqual(tree.size(), 2);
-      assert.isFalse(tree.hasFile('c'));
-      assert.isFalse(tree.hasFile('d'));
+      assert.isFalse(tree.hasFile(c));
+      assert.isFalse(tree.hasFile(d));
     });
 
     it('should not remove dependencies that are still depended on elsewhere', function () {
       // a* <- b <- c
       // d  <-
       let tree = new Tree();
-      tree.addFile('a', true);
-      tree.addFile('b');
-      tree.addFile('c');
-      tree.addFile('d');
-      tree.addDependency('a', 'b');
-      tree.addDependency('b', 'c');
-      tree.addDependency('d', 'b');
+      let a = tree.addFile('a', true);
+      let b = tree.addFile('b');
+      let c = tree.addFile('c');
+      let d = tree.addFile('d');
+      tree.addDependency(a, b);
+      tree.addDependency(b, c);
+      tree.addDependency(d, b);
 
       tree.prune();
-
-      assert.deepEqual(tree.getFiles({ topological: true }), [ 'c', 'b', 'a' ]);
+      assert.deepEqual(tree.getFiles({ topological: true }), [ c, b, a ]);
     });
 
     it('should properly handle a complex case', function () {
       // a* <- b <- c <- d
       // e  <- f <-
       let tree = new Tree();
-      tree.addFile('a', true);
-      tree.addFile('b');
-      tree.addFile('c');
-      tree.addFile('d');
-      tree.addFile('e');
-      tree.addFile('f');
-      tree.addDependency('a', 'b');
-      tree.addDependency('b', 'c');
-      tree.addDependency('c', 'd');
-      tree.addDependency('e', 'f');
-      tree.addDependency('f', 'c');
+      let a = tree.addFile('a', true);
+      let b = tree.addFile('b');
+      let c = tree.addFile('c');
+      let d = tree.addFile('d');
+      let e = tree.addFile('e');
+      let f = tree.addFile('f');
+      tree.addDependency(a, b);
+      tree.addDependency(b, c);
+      tree.addDependency(c, d);
+      tree.addDependency(e, f);
+      tree.addDependency(f, c);
 
       tree.prune();
-
-      assert.deepEqual(tree.getFiles({ topological: true }), [ 'd', 'c', 'b', 'a' ]);
+      assert.deepEqual(tree.getFiles({ topological: true }), [ d, c, b, a ]);
     });
 
     context('with entries', function () {
@@ -596,87 +532,76 @@ describe('Tree()', function () {
         // a* <- b
         // c* <- d
         let tree = new Tree();
-        tree.addFile('a', true);
-        tree.addFile('b');
-        tree.addFile('c', true);
-        tree.addFile('d');
-        tree.addDependency('a', 'b');
-        tree.addDependency('c', 'd');
+        let a = tree.addFile('a', true);
+        let b = tree.addFile('b');
+        let c = tree.addFile('c', true);
+        let d = tree.addFile('d');
+        tree.addDependency(a, b);
+        tree.addDependency(c, d);
 
-        tree.prune([ 'c' ]);
-
-        assert.deepEqual(tree.getFiles({ topological: true }), [ 'd', 'c' ]);
+        tree.prune([ c ]);
+        assert.deepEqual(tree.getFiles({ topological: true }), [ d, c ]);
       });
     });
   });
 
   describe('#removeCycles()', function () {
     it('should remove shallow cycles', function () {
-      // a <- b <- c*
-      //   <- c <- b*
+      // a <-> b
       let tree = new Tree();
-      tree.addFile('a', true);
-      tree.addFile('b');
-      tree.addFile('c');
-      tree.addDependency('a', 'b');
-      tree.addDependency('a', 'c');
-      tree.addDependency('b', 'c');
-      tree.addDependency('c', 'b');
+      let a = tree.addFile('a', true);
+      let b = tree.addFile('b');
+      tree.addDependency(a, b);
+      tree.addDependency(b, a); // should be removed
 
       tree.removeCycles();
-
-      assert.deepEqual(tree.getFiles({ topological: true }), [ 'c', 'b', 'a' ]);
+      assert.doesNotThrow(() => tree.getFiles({ topological: true }));
     });
 
-    it('should remove cycles found deeper in the graph', function () {
-      // a <- b <- c <- d*
-      //        <- d <- c*
+    it('should remove shallow cycles found deeper in the graph', function () {
+      // a <- b <-> c
       let tree = new Tree();
-      tree.addFile('a', true);
-      tree.addFile('b');
-      tree.addFile('c');
-      tree.addFile('d');
-      tree.addDependency('a', 'b');
-      tree.addDependency('b', 'c');
-      tree.addDependency('b', 'd');
-      tree.addDependency('c', 'd');
-      tree.addDependency('d', 'c');
+      let a = tree.addFile('a', true);
+      let b = tree.addFile('b');
+      let c = tree.addFile('c');
+      tree.addDependency(a, b);
+      tree.addDependency(b, c);
+      tree.addDependency(c, b);
 
       tree.removeCycles();
-
-      assert.deepEqual(tree.getFiles({ topological: true }), [ 'd', 'c', 'b', 'a' ]);
+      assert.doesNotThrow(() => tree.getFiles({ topological: true }));
     });
 
     it('should remove large cycles in the graph', function () {
-      // a <- b <- c <- d <- b*
+      // a <- b <- c <- d
+      //        ------>
       let tree = new Tree();
-      tree.addFile('a', true);
-      tree.addFile('b');
-      tree.addFile('c');
-      tree.addFile('d');
-      tree.addDependency('a', 'b');
-      tree.addDependency('b', 'c');
-      tree.addDependency('c', 'd');
-      tree.addDependency('d', 'b');
+      let a = tree.addFile('a', true);
+      let b = tree.addFile('b');
+      let c = tree.addFile('c');
+      let d = tree.addFile('d');
+      tree.addDependency(a, b);
+      tree.addDependency(b, c);
+      tree.addDependency(c, d);
+      tree.addDependency(d, b);
 
       tree.removeCycles();
-
-      assert.deepEqual(tree.getFiles({ topological: true }), [ 'd', 'c', 'b', 'a' ]);
+      assert.doesNotThrow(() => tree.getFiles({ topological: true }));
     });
   });
 
   describe('#toJSON()', function () {
     it('should return a list of vertices and edges for reconstructing the graph', function () {
-      // a <- b
+      // a.js <- b.js
       let tree = new Tree();
-      let a = tree.addFile('a', true);
-      let b = tree.addFile('b');
-      tree.addDependency('a', 'b');
+      let a = tree.addFile('a.js');
+      let b = tree.addFile('b.js');
+      tree.addDependency(a, b);
 
       assert.deepEqual(tree.toJSON(), {
         files: [ a, b ],
         dependencies: [
-          [ 'b', 'a' ]
+          [ b.id, a.id ]
         ]
       });
     });
@@ -684,16 +609,16 @@ describe('Tree()', function () {
 
   describe('#toString([space])', function () {
     it('should completely stringify to JSON', function () {
-      // a <- b
+      // a.js <- b.js
       let tree = new Tree();
-      let a = tree.addFile('a', true);
-      let b = tree.addFile('b');
-      tree.addDependency('a', 'b');
+      let a = tree.addFile('a.js');
+      let b = tree.addFile('b.js');
+      tree.addDependency(a, b);
 
       assert.strictEqual(tree.toString(), JSON.stringify({
         files: [ a, b ],
         dependencies: [
-          [ 'b', 'a' ]
+          [ b.id, a.id ]
         ]
       }));
     });
@@ -703,13 +628,13 @@ describe('Tree()', function () {
     it('should parse a JSON string into a tree instance', function () {
       // a <- b
       let tree = new Tree();
-      let a = tree.addFile('a', true);
+      let a = tree.addFile('a.js', true);
       a.contents = new Buffer('a');
       a.modified = new Date();
-      let b = tree.addFile('b');
+      let b = tree.addFile('b.js');
       b.contents = new Buffer('b');
       b.modified = new Date();
-      tree.addDependency('a', 'b');
+      tree.addDependency(a, b);
 
       let actual = Tree.fromString(tree.toString());
       assert.instanceOf(actual, Tree);
