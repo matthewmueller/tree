@@ -5,7 +5,7 @@ let assert = require('chai').assert;
 let File = require('../lib/file');
 let Tree = require('../lib/tree');
 
-describe('File(params, tree, [entry])', function () {
+describe('File(params, tree)', function () {
   it('should be a constructor function', function () {
     assert.instanceOf(new File({ path: 'a.js' }), File);
   });
@@ -256,7 +256,6 @@ describe('File(params, tree, [entry])', function () {
       let a = new File('a');
       let actual = a.toJSON();
       assert.strictEqual(actual.path, 'a');
-      assert.isFalse(actual.entry);
     });
 
     it('should preserve custom properties', function () {
@@ -280,7 +279,6 @@ describe('File(params, tree, [entry])', function () {
       assert.instanceOf(actual, File);
       assert.strictEqual(actual.path, 'a.txt');
       assert.strictEqual(actual.type, 'txt');
-      assert.isTrue(actual.entry);
     });
 
     it('should properly handle date objects', function () {

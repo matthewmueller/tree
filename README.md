@@ -8,20 +8,6 @@
 [![build status](https://img.shields.io/travis/makojs/tree.svg)](https://travis-ci.org/makojs/tree)
 [![coverage](https://img.shields.io/coveralls/makojs/tree.svg)](https://coveralls.io/github/makojs/tree)
 
-## Overview
-
-When working with mako build hooks, the first 2 arguments will be the current `file` and the build
-`tree` respectively. Currently, both of those APIs are contained in this module, as they tightly
-coupled and don't make much sense on their own. (at least at the current time)
-
-Throughout the "analyze" phase, a tree is being built up, starting from the list of entry files.
-Each file being processed adds any direct dependencies, which will then recursively be processed
-to find more dependencies. Each vertex in the graph corresponds to some sort of input file.
-
-During the "build" phase, the tree _may_ be trimmed down, such as the case where the entire
-dependency chain for a JS file will be combined into a single output file. By the end of the build,
-each vertex in the graph corresponds to an output file.
-
 ## API
 
 The `Tree` constructor (documented below) is the primary export for the module. It must be used
@@ -41,7 +27,7 @@ between all the files being tracked.
 
 Returns a `Boolean` reflecting if the given `file` exists in the tree.
 
-### Tree#addFile(params, [entry])
+### Tree#addFile(params)
 
 Creates a file with the given `params` and adds it to the tree.
 
@@ -68,14 +54,6 @@ Removes the given `file` from the tree. It will throw an exception if that file 
 dependency links.
 
 If `options.force` is set, it will forcefully remove the file, as well as any remaining links.
-
-### Tree#getEntries([options])
-
-Returns an `Array` of all the entry files in this graph. (in other words, files that are at the
-end of the dependency chains)
-
-If `options.from` is set, the returned list will only include entries that are reachable from that
-specified file.
 
 ### Tree#hasDependency(parent, child)
 
@@ -132,13 +110,9 @@ Returns the number of files in the tree.
 
 Returns a new `Tree` object that is an effective clone of the original.
 
-### Tree#prune([entries])
+### Tree#prune([anchors])
 
-Removes any orphaned files from the graph. A file is considered orphaned if it has no path to any
-file marked as an entry.
-
-If `entries` is passed, (must be an `Array`) then any files that cannot reach _those_ files will
-be removed from the graph. (essentially overrides the internal list of entries)
+Removes any files from the graph that are unaccessible by any of the provided `anchors` files.
 
 ### Tree#removeCycles()
 
@@ -163,7 +137,7 @@ The `space` parameter is there if you want to "pretty-print" the JSON output.
 Unserializes a JSON string into a `Tree` instance. (see `Tree#toJSON()`)
 
 
-### File(params, tree, [entry]) *(constructor)*
+### File(params, tree) *(constructor)*
 
 This file class extends [vinyl](https://www.npmjs.com/package/vinyl). The `params` will be passed
 directly to that constructor. (except where `params` is a string, then it will be passed as
