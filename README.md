@@ -24,10 +24,6 @@ each vertex in the graph corresponds to an output file.
 
 ## API
 
-> As mako continues to be developed and evolve, some documentation and guides dedicated to plugin
-authors will surface. For now, the following is purely the API available to both the `file` and
-`tree` parameters in plugins/hooks.
-
 The `Tree` constructor (documented below) is the primary export for the module. It must be used
 with the `new` keyword.
 
@@ -41,43 +37,37 @@ var tree = new Tree();
 Each instance represents a build tree. Internally, a graph is used to manage the relationships
 between all the files being tracked.
 
-**NOTE:** All paths are assumed to be absolute, this library makes no attempt to set a base/root
-directory and maintain relative paths.
+### Tree#hasFile(file)
 
-### Tree#hasFile(location)
+Returns a `Boolean` reflecting if the given `file` exists in the tree.
 
-Returns a `Boolean` reflecting if the file at the given `location` exists in this tree.
+### Tree#addFile(params, [entry])
 
-### Tree#addFile(location)
+Creates a file with the given `params` and adds it to the tree.
 
-Adds a file at the given `location` to the tree, if it is not already present, and returns the
-corresponding `File` instance.
+### Tree#getFile(file)
 
-### Tree#getFile(location)
+Returns the `File` instance for the given `file` ID.
 
-Returns the `File` instance for the file at the given `location`. It is assumed to already be part
-of the graph, and will throw an error if not found.
+### Tree#findFile(path)
+
+Searches the tree for a file that has the given `path`. (either currently, or at any point in
+it's history) If none is found, it simply returns `undefined`.
 
 ### Tree#getFiles([options])
 
-Returns an `Array` of all the files in this graph.
+Returns an `Array` of all the `File` objects in this graph.
 
 If `options.topological` is set, the returned list will be in
 [topological order](https://en.wikipedia.org/wiki/Topological_sorting), which respects all
 dependencies so processing is safe where order matters.
 
-If `options.objects` is set, the returned list will be `File` objects.
+### Tree#removeFile(file, [options])
 
-### Tree#removeFile(location)
+Removes the given `file` from the tree. It will throw an exception if that file has any current
+dependency links.
 
-Removes the file at the given `location` from the tree. To successfully remove a file, it must not
-be depended on by another file. This is mostly a plumbing function, and plugin authors are likely
-going to use `removeDependency()` instead.
-
-### Tree#isSource(location)
-
-Returns a `Boolean` telling whether or not the file at `location` is an entry file. (in other
-words, is not a dependency)
+If `options.force` is set, it will forcefully remove the file, as well as any remaining links.
 
 ### Tree#getEntries([options])
 
@@ -86,8 +76,6 @@ end of the dependency chains)
 
 If `options.from` is set, the returned list will only include entries that are reachable from that
 specified file.
-
-If `options.objects` is set, the returned list will be `File` objects.
 
 ### Tree#hasDependency(parent, child)
 
@@ -98,24 +86,19 @@ exists in the tree.
 
 Adds a new dependency relationship to the graph setting `parent` as depending on `child`.
 
-If `child` is not already part of the tree, it will be added. However, if `parent` is not in the
-tree, that is assumed to be an error.
-
-This will return the `File` instance for the `child` file.
+If either `parent` or `child` are not already in the graph, it will throw.
 
 ### Tree#removeDependency(parent, child)
 
-Removes the specified dependency relationship, basically saying that `parent` no longer depends on
-`child`.
+Removes the dependency link between `parent` and `child`.
+
+If this link does not already exist, this will throw.
 
 ### Tree#dependenciesOf(file, [options])
 
-Returns an `Array` of files that are dependencies of the given `file`.
+Returns an `Array` of files that are direct dependencies of the given `file`.
 
-By default, it will only return the direct descendants, but setting `options.recursive` will return
-a flat list of all the files **down** the entire dependency chain.
-
-If `options.objects` is set, the returned list will be `File` objects.
+If `options.recursive` is set, it will return all the files **down** the entire dependency chain.
 
 ### Tree#hasDependant(child, parent)
 
@@ -126,29 +109,20 @@ exists in the tree.
 
 Adds a new dependency relationship to the graph setting `child` as depended on by `parent`.
 
-If `parent` is not already part of the tree, it will be added. However, if `child` is not in the
-tree, that is assumed to be an error.
-
-This will return the `File` instance for the `parent` file.
+If either `parent` or `child` are not already in the graph, it will throw.
 
 ### Tree#removeDependant(child, parent)
 
-Removes the specified dependency relationship, basically saying that `child` no longer is depended
-on by `parent`.
+Removes the dependency link between `parent` and `child`.
+
+If this link does not already exist, this will throw.
+
 
 ### Tree#dependantsOf(file, [options])
 
-Returns an `Array` of files that depend on the given `file`.
+Returns an `Array` of files that directly depend on the given `file`.
 
-By default, it will only return the direct ancestors, but adding `options.recursive` will return a
-flat list of all the files **up** the entire dependency chain.
-
-If `options.objects` is set, the returned list will be `File` objects.
-
-### Tree#timing()
-
-Aggregates all the timers for all files in the tree. These stats are useful when trying to figure
-out which plugins/hooks are taking up the most time so they can hopefully be optimized.
+If `options.recursive` is set, it will return all the files **up** the entire dependency chain.
 
 ### Tree#size()
 
@@ -166,6 +140,17 @@ file marked as an entry.
 If `entries` is passed, (must be an `Array`) then any files that cannot reach _those_ files will
 be removed from the graph. (essentially overrides the internal list of entries)
 
+### Tree#removeCycles()
+
+Removes any cycles found in the tree. This is only a last-ditch effort before attempting
+topological sorting, so it makes no guarantees about where it breaks cycles. (circular dependencies
+should work, but that doesn't change the fact that they should be avoided if possible)
+
+### Tree#toJSON()
+
+Returns a trimmed object that can be serialized as JSON. (it should be possible to reconstruct the
+tree from the output)
+
 ### Tree#toString([space])
 
 Serializes the tree into a JSON string, which can be written to disk (and then read back) to help
@@ -175,56 +160,35 @@ The `space` parameter is there if you want to "pretty-print" the JSON output.
 
 ### Tree.fromString(input)
 
-Unserializes a JSON string into a `Tree` instance.
+Unserializes a JSON string into a `Tree` instance. (see `Tree#toJSON()`)
 
-### File(location, tree, [entry]) *(constructor)*
 
-Each instance represents a file in the overall build. The `location` is an absolute path, `tree`
-is the tree that contains this particular file and `entry` flags a file as an entry.
+### File(params, tree, [entry]) *(constructor)*
 
-Entry files are uniquely handled, particularly when it comes to `Tree#prune()`. Any files that do
-not have a path to some entry file are considered orphaned, and will be pruned.
-
-### File#path
-
-The absolute path to where this file exists on disk.
+This file class extends [vinyl](https://www.npmjs.com/package/vinyl). The `params` will be passed
+directly to that constructor. (except where `params` is a string, then it will be passed as
+`{ path: params }`)
 
 ### File#type
 
-The current file type associated with this file. This value is used to determine what plugins/hooks
-need to be invoked at various stages.
+A getter that retrieves the extension name. (without a leading `.`)
 
-**NOTE:** plugins can modify this value if their work changes the file type. (such as compiling
-`coffee` into `js`)
+**NOTE:** this is not a setter, plugins should simply modify the path to update this value.
+
+### File#initialPath
+
+A getter that retrieves the original path for this file.
+
+### File#initialType
+
+A getter that retrieves the original type for this file. (without a leading `.`)
 
 ### File#contents
 
-This holds the current contents of the file. When first read, this property should be set, and
-subsequent changes to the source code should apply to this property.
+A `Buffer` containing the contents for this file.
 
-**NOTE:** must be set by a plugin.
-
-### File#output
-
-The absolute path to where this file should be written on disk.
-
-**NOTE:** must be set by a plugin.
-
-### File#analyzing
-
-An internal flag that helps mako know when a particular file is currently being analyzed. (to
-prevent race conditions and duplicating efforts) There is currently no public use for this
-property.
-
-### File#analyzed
-
-A flag that helps mako know when a particular file has already been analyzed, so it doesn't
-continuously analyze the same file during subsequent builds. Do not change this manually,
-instead use `File#dirty()`.
-
-### File#isEntry()
-
-Short-hand for `tree.isEntry(file.path)`.
+**NOTE:** using strings is no longer supported for this property as Vinyl only supports `Buffer`
+and `Stream` values.
 
 ### File#hasDependency(child)
 
@@ -266,21 +230,14 @@ For example, [mako-stat](http://github.com/makojs/stat) will use this method whe
 modification time for a file has changed, which indicates to mako that analyze needs to be run
 again for this file.
 
-### File#time(label)
+### File#toJSON()
 
-Start a timer using the given `label` to describe what is being timed. (eg: "read", "babel")
-For simple hooks/plugins, a single timer is all you need.
+Returns a cloned object that can be JSON-serialized.
 
-If a plugin wants to have multiple timers, it should use it's name as a prefix. (eg: "js:pack",
-"css:dependencies")
+### File#toString()
 
-### File#timeEnd(label)
+Returns a string representation via `Vinyl#inspect()` useful for logging.
 
-Stops the timer using the given `label`.
+### File.fromObject(input, tree)
 
-The value saved here will be aggregated by the tree to give a glimpse of the overall time spent
-by varying plugins.
-
-### File#clone(tree)
-
-Returns a new `File` object that is an effective clone of the original.
+Takes a plain object and converts it into a `File` instance.
