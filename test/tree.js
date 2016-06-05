@@ -32,25 +32,11 @@ describe('Tree()', function () {
     });
   });
 
-  describe('#addFile(params, [entry])', function () {
+  describe('#addFile(params)', function () {
     it('should add the file to the graph', function () {
       let tree = new Tree();
       tree.addFile('a');
       assert.strictEqual(tree.size(), 1);
-    });
-
-    context('with entry', function () {
-      it('should set the file as an entry', function () {
-        let tree = new Tree();
-        let a = tree.addFile('a', true);
-        assert.isTrue(a.entry);
-      });
-
-      it('should leave the file as not an entry by default', function () {
-        let tree = new Tree();
-        let a = tree.addFile('a');
-        assert.isFalse(a.entry);
-      });
     });
   });
 
@@ -154,34 +140,6 @@ describe('Tree()', function () {
         tree.removeFile(html, { force: true });
         assert.isFalse(tree.hasFile(html));
         assert.isTrue(tree.hasFile(js));
-      });
-    });
-  });
-
-  describe('#getEntries([options])', function () {
-    // index.js  <- shared.js
-    // index.css <- shared.css
-    let tree = new Tree();
-    let js = tree.addFile('index.js', true);
-    let sharedJS = tree.addFile('shared.js');
-    let css = tree.addFile('index.css', true);
-    let sharedCSS = tree.addFile('shared.css');
-    tree.addDependency(js, sharedJS);
-    tree.addDependency(css, sharedCSS);
-
-    it('should return all the top-level entries', function () {
-      assert.deepEqual(tree.getEntries(), [ js, css ]);
-    });
-
-    context('with options', function () {
-      context('.from', function () {
-        it('should only the linked entries', function () {
-          assert.deepEqual(tree.getEntries({ from: sharedJS }), [ js ]);
-        });
-
-        it('should support a string id', function () {
-          assert.deepEqual(tree.getEntries({ from: sharedJS.id }), [ js ]);
-        });
       });
     });
   });
@@ -459,17 +417,17 @@ describe('Tree()', function () {
     });
   });
 
-  describe('#prune([entries])', function () {
-    it('should only remove orphaned files', function () {
+  describe('#prune(anchors)', function () {
+    it('should remove all files disconnected from anchors', function () {
       // a* <- b
       // c
       let tree = new Tree();
-      let a = tree.addFile('a', true);
+      let a = tree.addFile('a');
       let b = tree.addFile('b');
       let c = tree.addFile('c');
       tree.addDependency(a, b);
 
-      tree.prune();
+      tree.prune([ a ]);
       assert.strictEqual(tree.size(), 2);
       assert.isFalse(tree.hasFile(c));
     });
@@ -478,14 +436,14 @@ describe('Tree()', function () {
       // a* <- b
       // c  <- d
       let tree = new Tree();
-      let a = tree.addFile('a', true);
+      let a = tree.addFile('a');
       let b = tree.addFile('b');
       let c = tree.addFile('c');
       let d = tree.addFile('d');
       tree.addDependency(a, b);
       tree.addDependency(c, d);
 
-      tree.prune();
+      tree.prune([ a ]);
       assert.strictEqual(tree.size(), 2);
       assert.isFalse(tree.hasFile(c));
       assert.isFalse(tree.hasFile(d));
@@ -495,7 +453,7 @@ describe('Tree()', function () {
       // a* <- b <- c
       // d  <-
       let tree = new Tree();
-      let a = tree.addFile('a', true);
+      let a = tree.addFile('a');
       let b = tree.addFile('b');
       let c = tree.addFile('c');
       let d = tree.addFile('d');
@@ -503,7 +461,7 @@ describe('Tree()', function () {
       tree.addDependency(b, c);
       tree.addDependency(d, b);
 
-      tree.prune();
+      tree.prune([ a ]);
       assert.deepEqual(tree.getFiles({ topological: true }), [ c, b, a ]);
     });
 
@@ -511,7 +469,7 @@ describe('Tree()', function () {
       // a* <- b <- c <- d
       // e  <- f <-
       let tree = new Tree();
-      let a = tree.addFile('a', true);
+      let a = tree.addFile('a');
       let b = tree.addFile('b');
       let c = tree.addFile('c');
       let d = tree.addFile('d');
@@ -523,25 +481,8 @@ describe('Tree()', function () {
       tree.addDependency(e, f);
       tree.addDependency(f, c);
 
-      tree.prune();
+      tree.prune([ a ]);
       assert.deepEqual(tree.getFiles({ topological: true }), [ d, c, b, a ]);
-    });
-
-    context('with entries', function () {
-      it('should prune anything that cannot reach the provided list of files', function () {
-        // a* <- b
-        // c* <- d
-        let tree = new Tree();
-        let a = tree.addFile('a', true);
-        let b = tree.addFile('b');
-        let c = tree.addFile('c', true);
-        let d = tree.addFile('d');
-        tree.addDependency(a, b);
-        tree.addDependency(c, d);
-
-        tree.prune([ c ]);
-        assert.deepEqual(tree.getFiles({ topological: true }), [ d, c ]);
-      });
     });
   });
 
@@ -549,7 +490,7 @@ describe('Tree()', function () {
     it('should remove shallow cycles', function () {
       // a <-> b
       let tree = new Tree();
-      let a = tree.addFile('a', true);
+      let a = tree.addFile('a');
       let b = tree.addFile('b');
       tree.addDependency(a, b);
       tree.addDependency(b, a); // should be removed
@@ -561,7 +502,7 @@ describe('Tree()', function () {
     it('should remove shallow cycles found deeper in the graph', function () {
       // a <- b <-> c
       let tree = new Tree();
-      let a = tree.addFile('a', true);
+      let a = tree.addFile('a');
       let b = tree.addFile('b');
       let c = tree.addFile('c');
       tree.addDependency(a, b);
@@ -576,7 +517,7 @@ describe('Tree()', function () {
       // a <- b <- c <- d
       //        ------>
       let tree = new Tree();
-      let a = tree.addFile('a', true);
+      let a = tree.addFile('a');
       let b = tree.addFile('b');
       let c = tree.addFile('c');
       let d = tree.addFile('d');
@@ -628,7 +569,7 @@ describe('Tree()', function () {
     it('should parse a JSON string into a tree instance', function () {
       // a <- b
       let tree = new Tree();
-      let a = tree.addFile('a.js', true);
+      let a = tree.addFile('a.js');
       a.contents = new Buffer('a');
       a.modified = new Date();
       let b = tree.addFile('b.js');
