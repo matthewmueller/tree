@@ -246,6 +246,43 @@ describe('File(params, tree)', function () {
     });
   });
 
+  describe('#clone([tree])', function () {
+    it('should return a new File instance', function () {
+      let a = new File('a');
+      assert.instanceOf(a.clone(), File);
+    });
+
+    it('should preserve the known properties', function () {
+      let tree = new Tree();
+      let a = new File('/path/to/index.jade', tree);
+      a.type = 'html';
+      let clone = a.clone();
+
+      assert.strictEqual(clone.tree, tree);
+      assert.strictEqual(clone.path, '/path/to/index.html');
+      assert.deepEqual(clone.history, [ '/path/to/index.jade', '/path/to/index.html' ]);
+      assert.strictEqual(clone.cwd, process.cwd());
+    });
+
+    it('should preserve custom properties', function () {
+      let a = new File('/path/to/index.jade');
+      a.custom = 'value';
+      let clone = a.clone();
+
+      assert.strictEqual(clone.custom, 'value');
+    });
+
+    context('with tree', function () {
+      it('should reference the passed tree instead of the original', function () {
+        let tree = new Tree();
+        let a = new File('/path/to/index.jade', {});
+        let clone = a.clone(tree);
+
+        assert.strictEqual(clone.tree, tree);
+      });
+    });
+  });
+
   describe('#toJSON()', function () {
     it('should return a cloned object', function () {
       let a = new File('a');
