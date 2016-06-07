@@ -25,8 +25,24 @@ describe('File(params, tree)', function () {
   it('should allow setting additional vinyl params', function () {
     let path = 'a.js';
     let base = '/path/to';
-    let file = new File({ path, base });
+    let contents = new Buffer('hello world');
+    let file = new File({ path, base, contents });
     assert.strictEqual(file.base, base);
+    assert.strictEqual(file.contents.toString(), 'hello world');
+  });
+
+  it('should allow setting custom properties', function () {
+    let path = 'a.js';
+    let sourceMap = {};
+    let file = new File({ path, sourceMap });
+    assert.strictEqual(file.sourceMap, sourceMap);
+  });
+
+  it('should not preserving an id', function () {
+    let path = 'a.js';
+    let id = 'abc123';
+    let file = new File({ path, id });
+    assert.strictEqual(file.id, id);
   });
 
   describe('#hasPath(path)', function () {

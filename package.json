@@ -15,6 +15,7 @@
     "file-extension": "^2.0.1",
     "graph-toposort": "^0.2.0",
     "graph.js": "^1.20.1",
+    "object.omit": "^2.0.0",
     "regex-iso-date": "^1.0.0",
     "uuid": "^2.0.2",
     "vinyl": "^1.1.1"
