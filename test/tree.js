@@ -53,7 +53,7 @@ describe('Tree()', function () {
     });
   });
 
-  describe('#findFile(path)', function () {
+  describe('#findFile(file)', function () {
     let tree = new Tree();
     let file = tree.addFile('/path/to/index.jade');
     file.type = 'html'; // intentionally change extension to add to history
@@ -68,6 +68,10 @@ describe('Tree()', function () {
 
     it('should return undefined when the file does not exist', function () {
       assert.isUndefined(tree.findFile('does-not-exist'));
+    });
+
+    it('should support passing objects', function () {
+      assert.strictEqual(file, tree.findFile({ path: '/path/to/index.html' }));
     });
   });
 
