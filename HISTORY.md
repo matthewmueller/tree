@@ -1,4 +1,10 @@
 
+0.12.0 / 2016-06-07
+===================
+
+  * File now based on Vinyl
+  * many API changes (refer to README)
+
 0.11.4 / 2016-03-06
 ===================
 
