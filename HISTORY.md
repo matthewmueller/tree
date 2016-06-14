@@ -1,4 +1,9 @@
 
+0.13.1 / 2016-06-13
+===================
+
+  * ensure that going to and from JSON preserves root
+
 0.13.0 / 2016-06-13
 ===================
 
