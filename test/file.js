@@ -191,18 +191,11 @@ describe('File(params, tree)', function () {
     });
   });
 
-  describe('#dirty()', function () {
-    it('should turn off the analyzed flag', function () {
-      let file = new File('index.jade');
-      file.analyzed = true;
-      file.dirty();
-      assert.isFalse(file.analyzed);
-    });
-
+  describe('#reset()', function () {
     it('should reset the path back to the initial', function () {
       let file = new File('index.jade');
       file.type = 'html';
-      file.dirty();
+      file.reset();
       assert.strictEqual(file.path, 'index.jade');
     });
   });

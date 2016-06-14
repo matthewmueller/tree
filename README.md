@@ -200,13 +200,9 @@ Short-hand for `tree.removeDependant(file.path, parent)`.
 
 Short-hand for `tree.dependantsOf(file.path, options)`.
 
-### File#dirty()
+### File#reset()
 
-Can be used by the `prewrite` hook to mark a file as "dirty" so that it should be analyzed again.
-
-For example, [mako-stat](http://github.com/makojs/stat) will use this method whenever the
-modification time for a file has changed, which indicates to mako that analyze needs to be run
-again for this file.
+Used by mako to reset a file enough that it can be safely processed again.
 
 ### File#toJSON()
 
