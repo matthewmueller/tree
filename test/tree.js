@@ -582,12 +582,18 @@ describe('Tree([root])', function () {
       let b = tree.addFile('b.js');
       tree.addDependency(a, b);
 
-      assert.deepEqual(tree.toJSON(), {
-        files: [ a, b ],
-        dependencies: [
-          [ b.id, a.id ]
-        ]
-      });
+      let json = tree.toJSON();
+      assert.isNull(json.root);
+      assert.deepEqual(json.files, [ a, b ]);
+      assert.deepEqual(json.dependencies, [
+        [ b.id, a.id ]
+      ]);
+    });
+
+    it('should encode a root on the object', function () {
+      let tree = new Tree('root');
+      let json = tree.toJSON();
+      assert.strictEqual(json.root, tree.root);
     });
   });
 
@@ -600,6 +606,7 @@ describe('Tree([root])', function () {
       tree.addDependency(a, b);
 
       assert.strictEqual(tree.toString(), JSON.stringify({
+        root: null,
         files: [ a, b ],
         dependencies: [
           [ b.id, a.id ]
@@ -627,6 +634,12 @@ describe('Tree([root])', function () {
       function eqV(a, b) {
         return a.path === b.path && bufferEqual(a.contents, b.contents) && dateEqual(a.modified, b.modified);
       }
+    });
+
+    it('should restore the root property', function () {
+      let tree = new Tree('root');
+      let actual = Tree.fromString(tree.toString());
+      assert.strictEqual(actual.root, 'root');
     });
   });
 });
