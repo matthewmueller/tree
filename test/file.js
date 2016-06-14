@@ -324,6 +324,13 @@ describe('File(params, tree)', function () {
     });
   });
 
+  describe('#toString()', function () {
+    it('should return a string', function () {
+      let a = new File('a');
+      assert.isString(a.toString());
+    });
+  });
+
   describe('.fromObject(input, tree)', function () {
     it('should parse a JSON string into a file instance', function () {
       let file = new File('a.txt', null, true);
