@@ -3,11 +3,18 @@
 
 let assert = require('chai').assert;
 let bufferEqual = require('buffer-equal');
+let File = require('../lib/file');
 let Tree = require('../lib/tree');
 
-describe('Tree()', function () {
+
+describe('Tree([root])', function () {
   it('should be a constructor function', function () {
     assert.instanceOf(new Tree(), Tree);
+  });
+
+  it('should add the root property', function () {
+    let tree = new Tree('a');
+    assert.strictEqual(tree.root, 'a');
   });
 
   it('should be empty by default', function () {
@@ -37,6 +44,38 @@ describe('Tree()', function () {
       let tree = new Tree();
       tree.addFile('a');
       assert.strictEqual(tree.size(), 1);
+    });
+
+    it('should return the new file', function () {
+      let tree = new Tree();
+      let a = tree.addFile('a');
+      assert.instanceOf(a, File);
+    });
+
+    it('should set the path of the new file', function () {
+      let tree = new Tree();
+      let a = tree.addFile('a');
+      assert.strictEqual(a.path, 'a');
+    });
+
+    it('should support objects', function () {
+      let tree = new Tree();
+      let a = tree.addFile({ path: 'a' });
+      assert.strictEqual(a.path, 'a');
+    });
+
+    context('with root', function () {
+      it('should impose tree.root as file.base', function () {
+        let tree = new Tree('a');
+        let file = tree.addFile('z');
+        assert.strictEqual(file.base, 'a');
+      });
+
+      it('should override any specified base with tree.root', function () {
+        let tree = new Tree('a');
+        let file = tree.addFile({ base: 'b', path: 'z' });
+        assert.strictEqual(file.base, 'a');
+      });
     });
   });
 

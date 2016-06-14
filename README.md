@@ -18,10 +18,14 @@ var Tree = require('mako-tree');
 var tree = new Tree();
 ```
 
-### Tree() *(constructor)*
+### Tree([root]) *(constructor)*
 
 Each instance represents a build tree. Internally, a graph is used to manage the relationships
 between all the files being tracked.
+
+The `root` is a project root that will determine all `file.base` properties. Only 1 root is
+supported per tree. Also, this value will override any `base` parameter you specify in when
+adding files.
 
 ### Tree#hasFile(file)
 
