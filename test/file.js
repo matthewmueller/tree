@@ -35,7 +35,7 @@ describe('File(params, tree)', function () {
     let path = 'a.js';
     let sourceMap = {};
     let file = new File({ path, sourceMap });
-    assert.strictEqual(file.sourceMap, sourceMap);
+    assert.deepEqual(file.sourceMap, sourceMap);
   });
 
   it('should not preserving an id', function () {
@@ -279,6 +279,27 @@ describe('File(params, tree)', function () {
       let clone = a.clone();
 
       assert.strictEqual(clone.custom, 'value');
+    });
+
+    it('should deep clone complex properties', function () {
+      let a = new File({
+        path: 'a',
+        contents: new Buffer('hello world')
+      });
+      let clone = a.clone();
+      assert.notStrictEqual(a.history, clone.history);
+      assert.deepEqual(a.history, clone.history);
+      assert.notStrictEqual(a.contents, clone.contents);
+    });
+
+    it('should deep clone custom properties', function () {
+      let a = new File({
+        path: 'a',
+        sourceMap: {}
+      });
+      let clone = a.clone();
+      assert.notStrictEqual(a.sourceMap, clone.sourceMap);
+      assert.deepEqual(a.sourceMap, clone.sourceMap);
     });
 
     context('with tree', function () {
