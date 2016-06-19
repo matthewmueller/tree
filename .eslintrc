@@ -1,9 +1,0 @@
-{
-  "extends": [
-    "@dominicbarnes",
-    "@dominicbarnes/node"
-  ],
-  "rules": {
-    "no-param-reassign": 0
-  }
-}
