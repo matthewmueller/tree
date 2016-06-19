@@ -198,6 +198,13 @@ describe('File(params, tree)', function () {
       file.reset();
       assert.strictEqual(file.path, 'index.jade');
     });
+
+    it('should set the contents to null', function () {
+      let file = new File('index.jade');
+      file.contents = new Buffer('hello world');
+      file.reset();
+      assert.isNull(file.contents);
+    });
   });
 
   describe('#type', function () {
