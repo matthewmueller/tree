@@ -583,7 +583,7 @@ describe('Tree([root])', function () {
       tree.addDependency(a, b)
 
       let json = tree.toJSON()
-      assert.isNull(json.root)
+      assert.strictEqual(json.root, process.cwd())
       assert.deepEqual(json.files, [ a, b ])
       assert.deepEqual(json.dependencies, [
         [ b.id, a.id ]
@@ -606,7 +606,7 @@ describe('Tree([root])', function () {
       tree.addDependency(a, b)
 
       assert.strictEqual(tree.toString(), JSON.stringify({
-        root: null,
+        root: process.cwd(),
         files: [ a, b ],
         dependencies: [
           [ b.id, a.id ]
