@@ -1,4 +1,13 @@
 
+0.14.10 / 2016-06-29
+====================
+
+  * internal optimizations
+  * dropping defaults module
+  * simplifying File.fromObject()
+  * simplifying some property get/set
+  * adding mako-utils
+
 0.14.9 / 2016-06-27
 ===================
 
