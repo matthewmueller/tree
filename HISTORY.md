@@ -1,4 +1,9 @@
 
+0.14.11 / 2016-07-02
+====================
+
+  * add support for recursively checking for dependency relationships
+
 0.14.10 / 2016-06-29
 ====================
 
