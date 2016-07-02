@@ -59,10 +59,12 @@ dependency links.
 
 If `options.force` is set, it will forcefully remove the file, as well as any remaining links.
 
-### Tree#hasDependency(parent, child)
+### Tree#hasDependency(parent, child, [options])
 
 Returns a `Boolean` reflecting if the dependency relationship between `parent` and `child` already
 exists in the tree.
+
+If `options.recursive` is `true`, it will check the dependency tree recursively.
 
 ### Tree#addDependency(parent, child)
 
@@ -82,10 +84,12 @@ Returns an `Array` of files that are direct dependencies of the given `file`.
 
 If `options.recursive` is set, it will return all the files **down** the entire dependency chain.
 
-### Tree#hasDependant(child, parent)
+### Tree#hasDependant(child, parent, [options])
 
 Returns a `Boolean` reflecting if the dependency relationship between `child` and `parent` already
 exists in the tree.
+
+If `options.recursive` is `true`, it will check the dependency tree recursively.
 
 ### Tree#addDependant(child, parent)
 

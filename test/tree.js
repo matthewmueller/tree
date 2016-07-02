@@ -187,12 +187,14 @@ describe('Tree([root])', function () {
     })
   })
 
-  describe('#hasDependency(parent, child)', function () {
-    // index.html <- index.js
+  describe('#hasDependency(parent, child, [options])', function () {
+    // index.html <- index.js <- lib.js
     let tree = new Tree()
     let html = tree.addFile('index.html')
     let js = tree.addFile('index.js')
+    let lib = tree.addFile('lib.js')
     tree.addDependency(html, js)
+    tree.addDependency(js, lib)
 
     it('should return false for a missing dependency', function () {
       assert.isFalse(tree.hasDependency(html, 'does-not-exist'))
@@ -202,12 +204,24 @@ describe('Tree([root])', function () {
       assert.isFalse(tree.hasDependency(js, html))
     })
 
+    it('should return false if the dependency is deep', function () {
+      assert.isFalse(tree.hasDependency(html, lib))
+    })
+
     it('should return true for an existing dependency', function () {
       assert.isTrue(tree.hasDependency(html, js))
     })
 
     it('should allow using a string id', function () {
       assert.isTrue(tree.hasDependency(html.id, js.id))
+    })
+
+    context('with options', function () {
+      describe('.recursive', function () {
+        it('should search the dependency tree recursively', function () {
+          assert.isTrue(tree.hasDependency(html, lib, { recursive: true }))
+        })
+      })
     })
   })
 
@@ -307,12 +321,14 @@ describe('Tree([root])', function () {
     })
   })
 
-  describe('#hasDependant(child, parent)', function () {
-    // a.js <- b.js
+  describe('#hasDependant(child, parent, [options])', function () {
+    // a.js <- b.js <- c.js
     let tree = new Tree()
     let a = tree.addFile('a.js')
     let b = tree.addFile('b.js')
+    let c = tree.addFile('c.js')
     tree.addDependency(a, b)
+    tree.addDependency(b, c)
 
     it('should return false for a missing dependency', function () {
       assert.isFalse(tree.hasDependant(b, 'does-not-exist'))
@@ -322,12 +338,24 @@ describe('Tree([root])', function () {
       assert.isFalse(tree.hasDependant(a, b))
     })
 
+    it('should return false when the depedency is deep', function () {
+      assert.isFalse(tree.hasDependant(a, c))
+    })
+
     it('should return true for an existing dependency', function () {
       assert.isTrue(tree.hasDependant(b, a))
     })
 
     it('should allow using string ids', function () {
       assert.isTrue(tree.hasDependant(b.id, a.id))
+    })
+
+    context('with options', function () {
+      describe('.recursive', function () {
+        it('should return true when the dependant is deep', function () {
+          assert.isTrue(tree.hasDependant(c, a, { recursive: true }))
+        })
+      })
     })
   })
 
