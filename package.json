@@ -28,7 +28,7 @@
     "chai-as-promised": "^5.1.0",
     "istanbul": "^0.4.3",
     "istanbul-coveralls": "^1.0.3",
-    "mocha": "^2.3.0",
+    "mocha": "^3.0.0",
     "standard": "^7.1.2"
   },
   "scripts": {
