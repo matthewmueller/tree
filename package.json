@@ -11,7 +11,6 @@
   "dependencies": {
     "babel-polyfill-safe": "^1.0.1",
     "bytes": "^2.4.0",
-    "clone": "^1.0.2",
     "debug": "^2.2.0",
     "file-extension": "^2.0.1",
     "graph-toposort": "^0.2.0",
@@ -20,7 +19,7 @@
     "pretty-time": "^0.2.0",
     "regex-iso-date": "^1.0.0",
     "uuid": "^2.0.2",
-    "vinyl": "^1.1.1"
+    "vinyl": "^1.2.0"
   },
   "devDependencies": {
     "buffer-equal": "^1.0.0",
