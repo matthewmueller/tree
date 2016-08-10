@@ -1,4 +1,9 @@
 
+0.15.0 / 2016-08-10
+===================
+
+  * update vinyl: use improved clone method and constructor logic
+
 0.14.11 / 2016-07-02
 ====================
 
