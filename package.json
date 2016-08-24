@@ -28,7 +28,7 @@
     "istanbul": "^0.4.3",
     "istanbul-coveralls": "^1.0.3",
     "mocha": "^3.0.0",
-    "standard": "^7.1.2"
+    "standard": "^8.0.0"
   },
   "scripts": {
     "lint": "standard",
