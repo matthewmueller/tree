@@ -1,4 +1,10 @@
 
+0.15.1 / 2016-08-30
+===================
+
+  * cloning should preserve the root
+  * chore(package): update standard to version 8.0.0 (#18)
+
 0.15.0 / 2016-08-10
 ===================
 
