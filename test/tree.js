@@ -471,7 +471,7 @@ describe('Tree([root])', function () {
   describe('#clone()', function () {
     // a.js <- b.js
     //      <- c.js
-    let tree = new Tree()
+    let tree = new Tree('/some/root')
     let a = tree.addFile('a.js')
     let b = tree.addFile('b.js')
     let c = tree.addFile('c.js')
@@ -481,10 +481,15 @@ describe('Tree([root])', function () {
     it('should make a clone of the original', function () {
       let clone = tree.clone()
 
-      assert.notStrictEqual(tree, clone)
+      assert.notStrictEqual(clone, tree)
       assert.instanceOf(clone, Tree)
-      assert.strictEqual(tree.size(), clone.size())
-      assert.deepEqual(tree.getFiles({ topolical: true }), clone.getFiles({ topolical: true }))
+      assert.strictEqual(clone.size(), tree.size())
+      assert.deepEqual(clone.getFiles({ topological: true }), tree.getFiles({ topological: true }))
+    })
+
+    it('should preserve the root', function () {
+      let clone = tree.clone()
+      assert.strictEqual(clone.root, tree.root)
     })
   })
 
