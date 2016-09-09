@@ -154,9 +154,7 @@ directly to that constructor. (except where `params` is a string, then it will b
 
 ### File#type
 
-A getter that retrieves the extension name. (without a leading `.`)
-
-**NOTE:** this is not a setter, plugins should simply modify the path to update this value.
+A getter/setter for the extension name. (without a leading `.`)
 
 ### File#initialPath
 
