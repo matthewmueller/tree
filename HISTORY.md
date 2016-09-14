@@ -1,4 +1,10 @@
 
+0.15.3 / 2016-09-13
+===================
+
+  * update mako-utils
+  * Update docs about `File#time` since it is both get/set
+
 0.15.2 / 2016-08-31
 ===================
 
