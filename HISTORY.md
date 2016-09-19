@@ -1,4 +1,12 @@
 
+1.0.0 / 2016-09-19
+==================
+
+  * use npm version to create new releases
+  * adding contributor guidelines
+  * bump mako-utils
+  * clean up readme urls
+
 0.15.3 / 2016-09-13
 ===================
 
