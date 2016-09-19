@@ -15,7 +15,7 @@
     "file-extension": "^2.0.1",
     "graph-toposort": "^0.2.0",
     "graph.js": "^1.20.1",
-    "mako-utils": "^0.2.0",
+    "mako-utils": "^1.0.0",
     "pretty-time": "^0.2.0",
     "regex-iso-date": "^1.0.0",
     "uuid": "^2.0.2",
