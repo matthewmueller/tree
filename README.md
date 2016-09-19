@@ -1,13 +1,14 @@
 # mako-tree
 
-> The build tree structure used internally by [mako](https://github.com/makojs/core)
+> The build tree structure used internally by [mako][mako]
 
-[![npm version](https://img.shields.io/npm/v/mako-tree.svg)](https://www.npmjs.com/package/mako-tree)
-[![build status](https://img.shields.io/travis/makojs/tree.svg)](https://travis-ci.org/makojs/tree)
-[![coverage](https://img.shields.io/coveralls/makojs/tree.svg)](https://coveralls.io/github/makojs/tree)
-[![npm dependencies](https://img.shields.io/david/makojs/tree.svg)](https://david-dm.org/makojs/tree)
-[![npm dev dependencies](https://img.shields.io/david/dev/makojs/tree.svg)](https://david-dm.org/makojs/tree#info=devDependencies)
-[![code style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
+[![npm version][npm-badge]][npm]
+[![build status][travis-badge]][travis]
+[![coverage][coveralls-badge]][coveralls]
+[![npm dependencies][david-badge]][david]
+[![npm dev dependencies][david-dev-badge]][david-dev]
+[![code style][standard-badge]][standard]
+
 
 ## API
 
@@ -218,3 +219,18 @@ Returns a string representation via `Vinyl#inspect()` useful for logging.
 ### File.fromObject(input, tree)
 
 Takes a plain object and converts it into a `File` instance.
+
+
+[mako]: https://github.com/makojs/core
+[coveralls]: https://coveralls.io/github/makojs/tree
+[coveralls-badge]: https://img.shields.io/coveralls/makojs/tree.svg
+[david]: https://david-dm.org/makojs/tree
+[david-badge]: https://img.shields.io/david/makojs/tree.svg
+[david-dev]: https://david-dm.org/makojs/tree#info=devDependencies
+[david-dev-badge]: https://img.shields.io/david/dev/makojs/tree.svg
+[npm]: https://www.npmjs.com/package/mako-tree
+[npm-badge]: https://img.shields.io/npm/v/mako-tree.svg
+[standard]: http://standardjs.com/
+[standard-badge]: https://img.shields.io/badge/code%20style-standard-brightgreen.svg
+[travis]: https://travis-ci.org/makojs/tree
+[travis-badge]: https://img.shields.io/travis/makojs/tree.svg
