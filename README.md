@@ -7,6 +7,7 @@
 [![coverage][coveralls-badge]][coveralls]
 [![npm dependencies][david-badge]][david]
 [![npm dev dependencies][david-dev-badge]][david-dev]
+[![nsp status][nsp-badge]][nsp]
 [![code style][standard-badge]][standard]
 
 
@@ -221,16 +222,18 @@ Returns a string representation via `Vinyl#inspect()` useful for logging.
 Takes a plain object and converts it into a `File` instance.
 
 
-[mako]: https://github.com/makojs/core
-[coveralls]: https://coveralls.io/github/makojs/tree
 [coveralls-badge]: https://img.shields.io/coveralls/makojs/tree.svg
-[david]: https://david-dm.org/makojs/tree
+[coveralls]: https://coveralls.io/github/makojs/tree
 [david-badge]: https://img.shields.io/david/makojs/tree.svg
-[david-dev]: https://david-dm.org/makojs/tree#info=devDependencies
 [david-dev-badge]: https://img.shields.io/david/dev/makojs/tree.svg
-[npm]: https://www.npmjs.com/package/mako-tree
+[david-dev]: https://david-dm.org/makojs/tree#info=devDependencies
+[david]: https://david-dm.org/makojs/tree
+[mako]: https://github.com/makojs/core
 [npm-badge]: https://img.shields.io/npm/v/mako-tree.svg
-[standard]: http://standardjs.com/
+[npm]: https://www.npmjs.com/package/mako-tree
+[nsp badge]: https://nodesecurity.io/orgs/mako/projects/a77a3cfc-85a9-48d0-997a-4057eebb8bea/badge
+[nsp]: https://nodesecurity.io/orgs/mako/projects/a77a3cfc-85a9-48d0-997a-4057eebb8bea
 [standard-badge]: https://img.shields.io/badge/code%20style-standard-brightgreen.svg
-[travis]: https://travis-ci.org/makojs/tree
+[standard]: http://standardjs.com/
 [travis-badge]: https://img.shields.io/travis/makojs/tree.svg
+[travis]: https://travis-ci.org/makojs/tree
