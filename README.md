@@ -231,7 +231,7 @@ Takes a plain object and converts it into a `File` instance.
 [mako]: https://github.com/makojs/core
 [npm-badge]: https://img.shields.io/npm/v/mako-tree.svg
 [npm]: https://www.npmjs.com/package/mako-tree
-[nsp badge]: https://nodesecurity.io/orgs/mako/projects/a77a3cfc-85a9-48d0-997a-4057eebb8bea/badge
+[nsp-badge]: https://nodesecurity.io/orgs/mako/projects/a77a3cfc-85a9-48d0-997a-4057eebb8bea/badge
 [nsp]: https://nodesecurity.io/orgs/mako/projects/a77a3cfc-85a9-48d0-997a-4057eebb8bea
 [standard-badge]: https://img.shields.io/badge/code%20style-standard-brightgreen.svg
 [standard]: http://standardjs.com/
