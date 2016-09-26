@@ -1,4 +1,9 @@
 
+1.0.1 / 2016-09-25
+==================
+
+  * fix: properly handle files without an extension (#23)
+
 1.0.0 / 2016-09-19
 ==================
 
