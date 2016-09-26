@@ -220,6 +220,16 @@ describe('File(params, tree)', function () {
         file.path = 'index.html'
         assert.strictEqual(file.type, 'html')
       })
+
+      it('should use the basename when it has no extension', function () {
+        let file = new File('CNAME')
+        assert.strictEqual(file.type, 'cname')
+      })
+
+      it('should only use the basename when determining extension', function () {
+        let file = new File('example.com/CNAME')
+        assert.strictEqual(file.type, 'cname')
+      })
     })
 
     context('set', function () {
