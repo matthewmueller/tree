@@ -271,6 +271,11 @@ describe('File(params, tree)', function () {
       file.type = 'html'
       assert.strictEqual(file.initialType, 'jade')
     })
+
+    it('should not include the path when determining the extension', function () {
+      let file = new File('example.com/CNAME')
+      assert.strictEqual(file.initialType, 'cname')
+    })
   })
 
   describe('#clone([tree])', function () {

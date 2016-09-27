@@ -12,7 +12,7 @@
     "babel-polyfill-safe": "^1.0.1",
     "bytes": "^2.4.0",
     "debug": "^2.2.0",
-    "file-extension": "^2.0.1",
+    "file-extension": "^3.0.2",
     "graph-toposort": "^0.2.0",
     "graph.js": "^1.20.1",
     "mako-utils": "^1.0.0",
