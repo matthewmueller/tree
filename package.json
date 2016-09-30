@@ -19,7 +19,7 @@
     "pretty-time": "^0.2.0",
     "regex-iso-date": "^1.0.0",
     "uuid": "^2.0.2",
-    "vinyl": "^1.2.0"
+    "vinyl": "^2.0.0"
   },
   "devDependencies": {
     "buffer-equal": "^1.0.0",
