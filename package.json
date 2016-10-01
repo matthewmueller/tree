@@ -37,5 +37,8 @@
     "preversion": "npm test",
     "version": "git-changelog -t $npm_package_version && git add HISTORY.md",
     "postversion": "git push && git push --tags"
+  },
+  "greenkeeper": {
+    "label": "chore"
   }
 }
