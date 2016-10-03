@@ -1,4 +1,9 @@
 
+1.1.1 / 2016-10-03
+==================
+
+  * chore: switch to babel-polyfill-safer to address npm install warning
+
 1.1.0 / 2016-09-29
 ==================
 
