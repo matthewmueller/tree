@@ -22,6 +22,36 @@ describe('Tree([root])', function () {
     assert.equal(tree.size(), 0)
   })
 
+  describe('@@iterator()', function () {
+    // index.html <- index.js  <- shared.js
+    //            <- index.css <- shared.css
+    let tree = new Tree()
+    let html = tree.addFile('index.html')
+    let js = tree.addFile('index.js')
+    let sharedJS = tree.addFile('shared.js')
+    let css = tree.addFile('index.css')
+    let sharedCSS = tree.addFile('shared.css')
+    tree.addDependency(html, js)
+    tree.addDependency(html, css)
+    tree.addDependency(js, sharedJS)
+    tree.addDependency(css, sharedCSS)
+
+    it('should implement the iterator interface', function () {
+      let count = 0
+      for (const file of tree) {
+        count += 1
+        assert.instanceOf(file, File)
+      }
+      assert.equal(count, 5)
+    })
+
+    it('should sort the items topologically', function () {
+      let files = []
+      for (const file of tree) files.push(file)
+      assert.deepEqual(files, [ sharedJS, sharedCSS, js, css, html ])
+    })
+  })
+
   describe('#hasFile(id)', function () {
     let tree = new Tree()
     let file = tree.addFile({ path: 'a.js' })

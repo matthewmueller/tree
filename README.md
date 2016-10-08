@@ -30,6 +30,20 @@ The `root` is a project root that will determine all `file.base` properties. Onl
 supported per tree. Also, this value will override any `base` parameter you specify in when
 adding files.
 
+### Tree[@@iterable]()
+
+This class implements the `Iterable` interface, which iterates the files in the tree in topological
+order. (see `Tree#getFiles()` for more information)
+
+```js
+for (const file of tree) {
+  // iterate files in topological order
+}
+```
+
+This sugar allows you to treat the tree itself as an iterable, which can be useful in interacting
+with other APIs.
+
 ### Tree#hasFile(file)
 
 Returns a `Boolean` reflecting if the given `file` exists in the tree.
