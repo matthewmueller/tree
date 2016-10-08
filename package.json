@@ -1,6 +1,6 @@
 {
   "name": "mako-tree",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "main": "./lib/tree",
   "description": "The build tree structure used internally by mako",
   "keywords": [
