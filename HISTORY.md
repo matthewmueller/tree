@@ -1,4 +1,10 @@
 
+1.3.0 / 2016-10-14
+==================
+
+  * feat(tree): allow prune to work on a cyclic tree
+  * fix(tree): change remove cycles iteration to be more deterministic
+
 1.2.0 / 2016-10-08
 ==================
 
