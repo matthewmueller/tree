@@ -590,6 +590,45 @@ describe('Tree([root])', function () {
       tree.prune([ a ])
       assert.deepEqual(tree.getFiles({ topological: true }), [ d, c, b, a ])
     })
+
+    it('should even work with shallow circular dependencies', function () {
+      // a* <- b <-> c
+      // d  <- e
+      let tree = new Tree()
+      let a = tree.addFile('a')
+      let b = tree.addFile('b')
+      let c = tree.addFile('c')
+      let d = tree.addFile('d')
+      let e = tree.addFile('e')
+      tree.addDependency(a, b)
+      tree.addDependency(b, c)
+      tree.addDependency(c, b)
+      tree.addDependency(d, e)
+
+      tree.prune([ a ])
+      assert.sameMembers(tree.getFiles(), [ a, b, c ])
+    })
+
+    it('should even work with deep circular dependencies', function () {
+      // a <- b <- c <- d
+      //        ------>
+      // f <- e
+      let tree = new Tree()
+      let a = tree.addFile('a')
+      let b = tree.addFile('b')
+      let c = tree.addFile('c')
+      let d = tree.addFile('d')
+      let e = tree.addFile('e')
+      let f = tree.addFile('f')
+      tree.addDependency(a, b)
+      tree.addDependency(b, c)
+      tree.addDependency(c, d)
+      tree.addDependency(d, b)
+      tree.addDependency(f, e)
+
+      tree.prune([ a ])
+      assert.sameMembers(tree.getFiles(), [ a, b, c, d ])
+    })
   })
 
   describe('#removeCycles()', function () {
